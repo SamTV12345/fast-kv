@@ -350,7 +350,8 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags/v')
         run: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
+            npm publish --access public --otp=$OTP
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          OTP: ${{ secrets.OTP }}
