@@ -1,10 +1,10 @@
 {
-  "name": "kv",
-  "version": "0.0.0",
+  "name": "fast-kv",
+  "version": "0.0.1",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
-    "name": "kv",
+    "name": "fast-kv",
     "triples": {
       "defaults": false,
       "additional": [
