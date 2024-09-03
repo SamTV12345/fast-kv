@@ -257,7 +257,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine npm install -g pnpm && pnpm i && pnpm run test
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine npm install -g pnpm && pnpm config set supportedArchitectures.libc "musl" && pnpm i && pnpm run test
   universal-macOS:
     name: Build universal macOS binary
     needs:
