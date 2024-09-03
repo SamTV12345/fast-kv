@@ -19,6 +19,9 @@ permissions:
       - .editorconfig
       - docs/**
   pull_request: null
+  release:
+    types: [published]
+
 jobs:
   build:
     strategy:
