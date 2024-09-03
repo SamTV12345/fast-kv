@@ -34,5 +34,11 @@
     "test": "vitest",
     "universal": "napi universal",
     "version": "napi version"
+  },
+  "optionalDependencies": {
+    "rusty-store-kv-win32-x64-msvc": "0.0.1",
+    "rusty-store-kv-linux-x64-gnu": "0.0.1",
+    "rusty-store-kv-linux-x64-musl": "0.0.1",
+    "rusty-store-kv-darwin-universal": "0.0.1"
   }
 }

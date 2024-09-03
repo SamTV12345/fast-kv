@@ -1,12 +1,12 @@
 {
-  "name": "kv-darwin-universal",
-  "version": "0.0.0",
+  "name": "rusty-store-kv-darwin-universal",
+  "version": "0.0.1",
   "os": [
     "darwin"
   ],
-  "main": "kv.darwin-universal.node",
+  "main": "rusty-store-kv.darwin-universal.node",
   "files": [
-    "kv.darwin-universal.node"
+    "rusty-store-kv.darwin-universal.node"
   ],
   "license": "MIT",
   "engines": {

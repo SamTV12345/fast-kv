@@ -1,15 +1,15 @@
 {
-  "name": "kv-win32-x64-msvc",
-  "version": "0.0.0",
+  "name": "rusty-store-kv-win32-x64-msvc",
+  "version": "0.0.1",
   "os": [
     "win32"
   ],
   "cpu": [
     "x64"
   ],
-  "main": "kv.win32-x64-msvc.node",
+  "main": "rusty-store-kv.win32-x64-msvc.node",
   "files": [
-    "kv.win32-x64-msvc.node"
+    "rusty-store-kv.win32-x64-msvc.node"
   ],
   "license": "MIT",
   "engines": {

@@ -1,15 +1,15 @@
 {
-  "name": "kv-linux-x64-musl",
-  "version": "0.0.0",
+  "name": "rusty-store-kv-linux-x64-musl",
+  "version": "0.0.1",
   "os": [
     "linux"
   ],
   "cpu": [
     "x64"
   ],
-  "main": "kv.linux-x64-musl.node",
+  "main": "rusty-store-kv.linux-x64-musl.node",
   "files": [
-    "kv.linux-x64-musl.node"
+    "rusty-store-kv.linux-x64-musl.node"
   ],
   "license": "MIT",
   "engines": {
