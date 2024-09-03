@@ -245,7 +245,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm config set supportedArchitectures.libc "musl"
+          pnpm install
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
