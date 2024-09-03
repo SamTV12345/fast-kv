@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "fast-kv"
+name = "rusty-store-kv"
 version = "0.0.0"
 
 [lib]

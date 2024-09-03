@@ -1,10 +1,10 @@
 {
-  "name": "fast-kv",
+  "name": "rusty-store-kv",
   "version": "0.0.1",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
-    "name": "fast-kv",
+    "name": "rusty-store-kv",
     "triples": {
       "defaults": false,
       "additional": [

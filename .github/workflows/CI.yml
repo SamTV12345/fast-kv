@@ -1,7 +1,7 @@
 name: CI
 env:
   DEBUG: napi:*
-  APP_NAME: fast-kv
+  APP_NAME: rusty-store-kv
   MACOSX_DEPLOYMENT_TARGET: '10.13'
 permissions:
   contents: write
