@@ -212,6 +212,7 @@ jobs:
       - name: Test bindings
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim npm install -g pnpm && pnpm i && pnpm run test
   test-linux-x64-musl-binding:
+    if: "true"
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
       - build
