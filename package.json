@@ -57,7 +57,8 @@
     "format:rs": "cargo fmt",
     "lint": "oxlint",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "version": "napi version"
   },
   "devDependencies": {

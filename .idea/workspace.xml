@@ -7,48 +7,8 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Fixed name.">
-      <change afterPath="$PROJECT_DIR$/.github/renovate.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.github/workflows/lint.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.prettierignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/__test__/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/__test__/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/benchmark/bench.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/benchmark/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/benchmark/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/browser.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package-template.wasi-browser.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package-template.wasi.cjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/simple-test.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wasi-worker-browser.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wasi-worker.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cargo/config.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/CI.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/CI.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kv-napi.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.npmignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__test__/index.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/__test__/index.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/darwin-universal/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/darwin-universal/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/linux-x64-gnu/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/linux-x64-gnu/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/linux-x64-musl/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/linux-x64-musl/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/win32-x64-msvc/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/win32-x64-msvc/package.json" beforeDir="false" />
+    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Switched to pnpm">
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rustfmt.toml" beforeDir="false" afterPath="$PROJECT_DIR$/rustfmt.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,7 +119,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725451700485</updated>
-      <workItem from="1725451703205" duration="1837000" />
+      <workItem from="1725451703205" duration="2483000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed lockfile.">
       <option name="closed" value="true" />
@@ -177,7 +137,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725452773995</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Switched to pnpm">
+      <option name="closed" value="true" />
+      <created>1725453818369</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1725453818369</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -186,7 +154,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed lockfile." />
     <MESSAGE value="Fixed name." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed name." />
+    <MESSAGE value="Switched to pnpm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Switched to pnpm" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
