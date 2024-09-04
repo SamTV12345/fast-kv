@@ -7,11 +7,8 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Reformated lib">
+    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Removed android target.">
       <change beforePath="$PROJECT_DIR$/.github/workflows/CI.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/CI.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/darwin-x64/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/darwin-x64/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/linux-x64-gnu/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/linux-x64-gnu/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/npm/win32-x64-msvc/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/win32-x64-msvc/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +119,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725451700485</updated>
-      <workItem from="1725451703205" duration="5239000" />
+      <workItem from="1725451703205" duration="5663000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed lockfile.">
       <option name="closed" value="true" />
@@ -172,7 +169,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725456743253</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Removed android target.">
+      <option name="closed" value="true" />
+      <created>1725457741355</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1725457741355</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -185,7 +190,8 @@
     <MESSAGE value="Fixed vitest watching changes." />
     <MESSAGE value="Added on release" />
     <MESSAGE value="Reformated lib" />
-    <option name="LAST_COMMIT_MESSAGE" value="Reformated lib" />
+    <MESSAGE value="Removed android target." />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed android target." />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
