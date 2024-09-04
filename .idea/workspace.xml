@@ -7,8 +7,11 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Fixed vitest watching changes.">
+    <list default="true" id="0104263e-180b-4e03-afd2-19303b822c17" name="Changes" comment="Reformated lib">
       <change beforePath="$PROJECT_DIR$/.github/workflows/CI.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/CI.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/npm/darwin-x64/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/darwin-x64/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/npm/linux-x64-gnu/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/linux-x64-gnu/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/npm/win32-x64-msvc/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/npm/win32-x64-msvc/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +122,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725451700485</updated>
-      <workItem from="1725451703205" duration="3145000" />
+      <workItem from="1725451703205" duration="5239000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed lockfile.">
       <option name="closed" value="true" />
@@ -153,7 +156,23 @@
       <option name="project" value="LOCAL" />
       <updated>1725454397949</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added on release">
+      <option name="closed" value="true" />
+      <created>1725455906573</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1725455906573</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Reformated lib">
+      <option name="closed" value="true" />
+      <created>1725456743253</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1725456743253</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -164,7 +183,9 @@
     <MESSAGE value="Fixed name." />
     <MESSAGE value="Switched to pnpm" />
     <MESSAGE value="Fixed vitest watching changes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed vitest watching changes." />
+    <MESSAGE value="Added on release" />
+    <MESSAGE value="Reformated lib" />
+    <option name="LAST_COMMIT_MESSAGE" value="Reformated lib" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
