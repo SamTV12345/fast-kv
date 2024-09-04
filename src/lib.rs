@@ -1,7 +1,7 @@
 #![deny(clippy::all)]
 
-use std::fs;
 use redb::{Database, ReadableTable, TableDefinition};
+use std::fs;
 
 #[macro_use]
 extern crate napi_derive;
@@ -22,7 +22,7 @@ impl KeyValueDB {
   pub fn new(filename: String) -> Self {
     KeyValueDB {
       filename: filename.clone(),
-      db: Database::create(&filename).unwrap()
+      db: Database::create(&filename).unwrap(),
     }
   }
 
@@ -31,12 +31,13 @@ impl KeyValueDB {
     let read_txn = self.db.begin_read().unwrap();
     let table = get_first_key(&key);
     let table: TableDefinition<String, String> = TableDefinition::new(&table);
-    let table = read_txn.open_table(table)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-    table.get(key)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}",
-                                                                            e)))
-        .map(|v|v.map(|v| v.value().to_string()))
+    let table = read_txn
+      .open_table(table)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+    table
+      .get(key)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+      .map(|v| v.map(|v| v.value().to_string()))
   }
   #[napi]
   pub fn set(&self, key: String, value: String) -> napi::Result<()> {
@@ -44,13 +45,16 @@ impl KeyValueDB {
     let table = get_first_key(&key);
     let table: TableDefinition<String, String> = TableDefinition::new(&table);
     {
-      let mut table = write_txn.open_table(table)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-      table.insert(key, value)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+      let mut table = write_txn
+        .open_table(table)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+      table
+        .insert(key, value)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
     }
-    write_txn.commit()
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+    write_txn
+      .commit()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
   }
   #[napi]
   pub fn remove(&self, key: String) -> napi::Result<()> {
@@ -58,13 +62,16 @@ impl KeyValueDB {
     let table = get_first_key(&key);
     let table: TableDefinition<String, String> = TableDefinition::new(&table);
     {
-      let mut table = write_txn.open_table(table)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-      table.remove(key)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+      let mut table = write_txn
+        .open_table(table)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+      table
+        .remove(key)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
     }
-    write_txn.commit()
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+    write_txn
+      .commit()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
   }
   #[napi]
   pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
@@ -76,10 +83,12 @@ impl KeyValueDB {
     let read_txn = self.db.begin_read().unwrap();
     let table = get_first_key(&key);
     let table: TableDefinition<String, String> = TableDefinition::new(&table);
-    let table = read_txn.open_table(table)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-    let iter = table.iter()
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+    let table = read_txn
+      .open_table(table)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+    let iter = table
+      .iter()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
 
     iter.for_each(|x| {
       let res = x.unwrap();
@@ -90,7 +99,9 @@ impl KeyValueDB {
 
         let not_regex = regex::Regex::new(&not_regex_key).unwrap();
         if res.0.value().to_string() != *not_key {
-          if regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
+          if regex.is_match(&res.0.value().to_string())
+            && !not_regex.is_match(&res.0.value().to_string())
+          {
             found_keys.push(res.0.value().to_string());
           }
         }
@@ -122,7 +133,14 @@ mod tests {
     db.set("test:key2".to_string(), "value".to_string());
     db.set("test:key3".to_string(), "value".to_string());
     let keys = db.find_keys("test".to_string(), None).unwrap();
-    assert_eq!(keys, vec!["test:key".to_string(), "test:key2".to_string(), "test:key3".to_string()]);
+    assert_eq!(
+      keys,
+      vec![
+        "test:key".to_string(),
+        "test:key2".to_string(),
+        "test:key3".to_string()
+      ]
+    );
   }
 
   #[test]
