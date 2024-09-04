@@ -20,8 +20,8 @@ permissions:
       - docs/**
   pull_request: null
   release:
-    types: [published]
-
+    types:
+      - published
 jobs:
   build:
     strategy:
@@ -217,7 +217,7 @@ jobs:
       - name: Test bindings
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim npm install -g pnpm && pnpm i && pnpm run test
   test-linux-x64-musl-binding:
-    if: "false"
+    if: 'false'
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
       - build
@@ -313,7 +313,6 @@ jobs:
     needs:
       - test-macOS-windows-binding
       - test-linux-x64-gnu-binding
-      #- test-linux-x64-musl-binding
       - universal-macOS
     steps:
       - uses: actions/checkout@v4
@@ -351,8 +350,8 @@ jobs:
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public --otp=$OTP
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+          npm publish --access public --otp=$OTP
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

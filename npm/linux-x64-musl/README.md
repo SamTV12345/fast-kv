@@ -1,3 +1,3 @@
-# `kv-linux-x64-musl`
+# `rusty-store-kv-linux-x64-musl`
 
-This is the **x86_64-unknown-linux-musl** binary for `kv`
+This is the **x86_64-unknown-linux-musl** binary for `rusty-store-kv`
