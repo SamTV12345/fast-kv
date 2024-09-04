@@ -76,7 +76,7 @@ impl KeyValueDB {
   #[napi]
   pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     let mut regex_key = key.replace("*", ".*");
-    regex_key.push_str("$");
+    regex_key.push('$');
 
     let regex = regex::Regex::new(&regex_key).unwrap();
     let mut found_keys = Vec::new();
@@ -95,15 +95,11 @@ impl KeyValueDB {
 
       if let Some(not_key) = &not_key {
         let mut not_regex_key = not_key.replace("*", ".*");
-        not_regex_key.push_str("$");
+        not_regex_key.push('$');
 
         let not_regex = regex::Regex::new(&not_regex_key).unwrap();
-        if res.0.value().to_string() != *not_key {
-          if regex.is_match(&res.0.value().to_string())
-            && !not_regex.is_match(&res.0.value().to_string())
-          {
-            found_keys.push(res.0.value().to_string());
-          }
+        if res.0.value().to_string() != *not_key && regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
+          found_keys.push(res.0.value().to_string());
         }
       } else if regex.is_match(&res.0.value().to_string()) {
         found_keys.push(res.0.value().to_string());
