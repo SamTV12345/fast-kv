@@ -27,17 +27,17 @@ impl KeyValueDB {
   }
 
   #[napi]
-    pub fn get(&self, key: String) -> napi::Result<Option<String>> {
-      let read_txn = self.db.begin_read().unwrap();
-      let table = get_first_key(&key);
-      let table: TableDefinition<String, String> = TableDefinition::new(&table);
-      let table = read_txn.open_table(table)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-      table.get(key)
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}",
-                                                                                         e)))
-          .map(|v|v.map(|v| v.value().to_string()))
-    }
+  pub fn get(&self, key: String) -> napi::Result<Option<String>> {
+    let read_txn = self.db.begin_read().unwrap();
+    let table = get_first_key(&key);
+    let table: TableDefinition<String, String> = TableDefinition::new(&table);
+    let table = read_txn.open_table(table)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+    table.get(key)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}",
+                                                                            e)))
+        .map(|v|v.map(|v| v.value().to_string()))
+  }
   #[napi]
   pub fn set(&self, key: String, value: String) -> napi::Result<()> {
     let write_txn = self.db.begin_write().unwrap();
@@ -84,19 +84,19 @@ impl KeyValueDB {
     iter.for_each(|x| {
       let res = x.unwrap();
 
-        if let Some(not_key) = &not_key {
-            let mut not_regex_key = not_key.replace("*", ".*");
-          not_regex_key.push_str("$");
+      if let Some(not_key) = &not_key {
+        let mut not_regex_key = not_key.replace("*", ".*");
+        not_regex_key.push_str("$");
 
-            let not_regex = regex::Regex::new(&not_regex_key).unwrap();
-            if res.0.value().to_string() != *not_key {
-              if regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
-                found_keys.push(res.0.value().to_string());
-              }
-            }
-        } else if regex.is_match(&res.0.value().to_string()) {
+        let not_regex = regex::Regex::new(&not_regex_key).unwrap();
+        if res.0.value().to_string() != *not_key {
+          if regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
             found_keys.push(res.0.value().to_string());
+          }
         }
+      } else if regex.is_match(&res.0.value().to_string()) {
+        found_keys.push(res.0.value().to_string());
+      }
     });
     Ok(found_keys)
   }
@@ -108,12 +108,12 @@ impl KeyValueDB {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
-    #[test]
-    fn test_get_first_key() {
-      assert_eq!(get_first_key("test:key"), "test");
-    }
+  #[test]
+  fn test_get_first_key() {
+    assert_eq!(get_first_key("test:key"), "test");
+  }
 
   #[test]
   fn test_find_keys_test() {
