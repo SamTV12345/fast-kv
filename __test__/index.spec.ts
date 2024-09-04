@@ -90,3 +90,41 @@ test('Key value findKeys 45', ()=>{
   expect(res).toEqual(["key:45:test"])
   db.destroy()
 })
+
+
+test('findKeys with exclusion works', ()=>{
+  const db = new KeyValueDB('test')
+  db.set('key:2:test','test')
+  db.set('key:2:testa', 'true')
+  db.set('key:2:testb', 'true')
+  db.set('key:2:testb2', 'true')
+  db.set('nonmatching_key:2:test', 'true')
+  const keys = db.findKeys('key:2:test*', "key:2:testb*")
+  expect(keys.sort()).toStrictEqual(['key:2:test', 'key:2:testa'])
+  db.destroy()
+})
+
+
+test('findKeys with no matches works', async ()=>{
+  const db = new KeyValueDB('test')
+  db.set('key:2:test','test')
+  const keys = db.findKeys('123', "key:2:testb*")
+  expect(keys).toStrictEqual([])
+  db.destroy()
+})
+
+
+test('find keys with no wildcards works', async ()=>{
+  const db = new KeyValueDB('test')
+  db.set('key:2:test','')
+  db.set('key:2:testa', '')
+  const keys = db.findKeys('key:2:testa')
+  expect(keys).toStrictEqual(['key:2:testa'])
+  db.destroy()
+})
+
+test('get without table', async ()=>{
+  const db = new KeyValueDB('test')
+  db.get('234dsfsdfsdf')
+  db.destroy()
+})
