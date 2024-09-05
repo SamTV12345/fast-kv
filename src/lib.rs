@@ -9,7 +9,7 @@ extern crate napi_derive;
 #[napi(js_name = "KeyValueDB")]
 pub struct KeyValueDB {
     filename: String,
-    db: Database,
+    db: Option<Database>,
 }
 
 
@@ -22,99 +22,141 @@ impl KeyValueDB {
     pub fn new(filename: String) -> napi::Result<Self> {
         Ok(KeyValueDB {
             filename: filename.clone(),
-            db: Database::create(&filename).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?,
+            db: Some(Database::create(&filename).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?),
         })
     }
 
     #[napi]
     pub fn get(&self, key: String) -> napi::Result<Option<String>> {
-        let read_txn = self.db.begin_read().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-        let table = read_txn
-            .open_table(TABLE);
-        if table.is_err() {
-            return Ok(None);
+        match &self.db {
+            Some(db)=>{
+                let read_txn = db.begin_read().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                let table = read_txn
+                    .open_table(TABLE);
+                if table.is_err() {
+                    return Ok(None);
+                }
+
+                let binding = table.map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                binding
+                    .get(key)
+                    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+                    .map(|v| v.map(|v| v.value().to_string()))
+            }
+            None=>{
+                Err(napi::Error::new(napi::Status::GenericFailure, format!("Db not initialized")))
+            }
         }
-
-        let binding = table.map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-
-        binding
-            .get(key)
-            .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
-            .map(|v| v.map(|v| v.value().to_string()))
     }
     #[napi]
     pub fn set(&self, key: String, value: String) -> napi::Result<()> {
-        let write_txn = self.db.begin_write().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-        {
-            let mut table = write_txn
-                .open_table(TABLE)
-                .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-            table
-                .insert(key, value)
-                .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+        match &self.db {
+            Some(db)=>{
+
+                let write_txn = db.begin_write().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                {
+                    let mut table = write_txn
+                        .open_table(TABLE)
+                        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                    table
+                        .insert(key, value)
+                        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                }
+                write_txn
+                    .commit()
+                    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+            }
+            None=>{
+                Err(napi::Error::new(napi::Status::GenericFailure, format!("Db not initialized")))
+            }
         }
-        write_txn
-            .commit()
-            .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+
     }
     #[napi]
     pub fn remove(&self, key: String) -> napi::Result<()> {
-        let write_txn = self.db.begin_write().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-        {
-            let mut table = write_txn
-                .open_table(TABLE)
-                .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-            table
-                .remove(key)
-                .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+        match &self.db {
+            Some(db)=>{
+
+                let write_txn = db.begin_write().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                {
+                    let mut table = write_txn
+                        .open_table(TABLE)
+                        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                    table
+                        .remove(key)
+                        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                }
+                write_txn
+                    .commit()
+                    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+            }
+            None=>{
+                Err(napi::Error::new(napi::Status::GenericFailure, format!("Db not initialized")))
+            }
         }
-        write_txn
-            .commit()
-            .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
     }
+
     #[napi]
     pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
-        let mut regex_key = "^".to_string();
-        regex_key.push_str(&key);
-        regex_key = regex_key.replace("*", ".*");
+        match &self.db {
+            Some(db)=>{
+                let mut regex_key = "^".to_string();
+                regex_key.push_str(&key);
+                regex_key = regex_key.replace("*", ".*");
 
-        regex_key.push('$');
+                regex_key.push('$');
 
-        let regex = regex::Regex::new(&regex_key).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-        let mut found_keys = Vec::new();
-        let read_txn = self.db.begin_read().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-        let table = read_txn
-            .open_table(TABLE);
+                let regex = regex::Regex::new(&regex_key).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                let mut found_keys = Vec::new();
+                let read_txn = db.begin_read().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+                let table = read_txn
+                    .open_table(TABLE);
 
-        if table.is_err() {
-            return Ok(vec![]);
+                if table.is_err() {
+                    return Ok(vec![]);
+                }
+
+                let binding = table.map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+
+                let iter = binding
+                    .iter()
+                    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
+
+                iter.for_each(|x| {
+                    let res = x.unwrap();
+
+                    if let Some(not_key) = &not_key {
+                        let mut not_regex_key = "^".to_string();
+                        not_regex_key.push_str(&not_key);
+                        not_regex_key = not_regex_key.replace("*", ".*");
+                        not_regex_key.push('$');
+
+                        let not_regex = regex::Regex::new(&not_regex_key).unwrap();
+                        if res.0.value().to_string() != *not_key && regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
+                            found_keys.push(res.0.value().to_string());
+                        }
+                    } else if regex.is_match(&res.0.value().to_string()) {
+                        found_keys.push(res.0.value().to_string());
+                    }
+                });
+                Ok(found_keys)
+            }
+            None=>{
+                Err(napi::Error::new(napi::Status::GenericFailure, format!("Db not initialized")))
+            }
         }
 
-        let binding = table.map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-
-        let iter = binding
-            .iter()
-            .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
-
-        iter.for_each(|x| {
-            let res = x.unwrap();
-
-            if let Some(not_key) = &not_key {
-                let mut not_regex_key = "^".to_string();
-                not_regex_key.push_str(&not_key);
-                not_regex_key = not_regex_key.replace("*", ".*");
-                not_regex_key.push('$');
-
-                let not_regex = regex::Regex::new(&not_regex_key).unwrap();
-                if res.0.value().to_string() != *not_key && regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
-                    found_keys.push(res.0.value().to_string());
-                }
-            } else if regex.is_match(&res.0.value().to_string()) {
-                found_keys.push(res.0.value().to_string());
-            }
-        });
-        Ok(found_keys)
     }
+
+    #[napi]
+    pub fn close(&mut self) -> napi::Result<()> {
+        if let Some(db) = self.db.take() {  // Take ownership and drop the connection
+            drop(db);
+        }
+        Ok(())
+    }
+
+
     #[napi]
     pub fn destroy(&self) -> napi::Result<()> {
         fs::remove_file(&self.filename).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;

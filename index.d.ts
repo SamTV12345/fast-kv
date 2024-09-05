@@ -6,6 +6,7 @@ export declare class KeyValueDB {
   set(key: string, value: string): void
   remove(key: string): void
   findKeys(key: string, notKey?: string | undefined | null): Array<string>
+  close(): void
   destroy(): void
 }
 

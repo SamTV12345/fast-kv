@@ -30,6 +30,16 @@ test('Key value set', ()=>{
   db.destroy()
 })
 
+
+test('2 db open', ()=>{
+  const db = new KeyValueDB('test')
+  db.set('test1', "test2")
+  db.close()
+  const db2 = new KeyValueDB('test')
+  db2.set('test2', 'test2')
+  db2.close()
+})
+
 test('Key value remove', ()=>{
   const db = new KeyValueDB('test3')
   db.set('key:test', 'value:test')
