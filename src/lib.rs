@@ -1,6 +1,7 @@
 #![deny(clippy::all)]
 
 mod sqlite;
+mod memory;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
