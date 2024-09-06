@@ -362,3 +362,4 @@ if (!nativeBinding) {
 }
 
 module.exports.KeyValueDB = nativeBinding.KeyValueDB
+module.exports.SQLite = nativeBinding.SQLite
