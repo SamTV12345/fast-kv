@@ -51,7 +51,7 @@ test('Key value findKeys 2', ()=>{
   db.set('key:test', 'value:test')
   db.set('key:test2', 'value:test2')
   db.set('key:123', "value:123")
-  let res = db.findKeys('key:test*')
+  let res = db.findKeys('key:test*').sort()
   expect(res).toEqual(['key:test', 'key:test2'])
 })
 

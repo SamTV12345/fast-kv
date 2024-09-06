@@ -57,9 +57,9 @@ impl MemoryDB {
             .iter()
             .filter(|(k,_)|{
                 if let Some(not_key) = &not_key_regex {
-                    key_regex.is_match(&key) && !not_key.is_match(k)
+                    key_regex.is_match(&k) && !not_key.is_match(k)
                 } else {
-                    key_regex.is_match(&key)
+                    key_regex.is_match(&k)
                 }
             })
             .map(|k|k.0.clone())
@@ -71,20 +71,5 @@ impl MemoryDB {
     pub fn close(&mut self) -> napi::Result<()> {
         self.db.clear();
         Ok(())
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_find_keys_test() {
-        let mut db = MemoryDB::new();
-        db.set("test:key".to_string(), "value".to_string()).unwrap();
-        db.set("test123:not_key".to_string(), "value".to_string()).unwrap();
-        let result = db.find_keys("test:*".to_string(), None).unwrap();
-        assert_eq!(result, vec!["test:key".to_string()]);
     }
 }
