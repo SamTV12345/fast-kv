@@ -25,6 +25,13 @@ export declare class MemoryDB {
   findKeys(key: string, notKey?: string | undefined | null): Array<string>
   close(): void
 }
+export declare class Dirty {
+  constructor(filename: string)
+  get(key: string): string | null
+  set(key: string, val: string): void
+  remove(key: string): void
+  close(): void
+}
 export declare class KeyValueDB {
   constructor(filename: string)
   get(key: string): string | null

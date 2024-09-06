@@ -2,6 +2,7 @@
 
 mod sqlite;
 mod memory;
+mod dirty;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;

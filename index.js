@@ -310,8 +310,9 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { SQLite, MemoryDB, KeyValueDB } = nativeBinding
+const { SQLite, MemoryDB, Dirty, KeyValueDB } = nativeBinding
 
 module.exports.SQLite = SQLite
 module.exports.MemoryDB = MemoryDB
+module.exports.Dirty = Dirty
 module.exports.KeyValueDB = KeyValueDB
