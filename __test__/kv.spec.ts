@@ -5,7 +5,7 @@ import {expect, test} from 'vitest'
 
 
 test('test get', () => {
-  const db = new KeyValueDB('test')
+  const db = new KeyValueDB('test.db')
   db.set('key:test', 'value:test')
   let res = db.get('key:test');
   expect(res).toBe('value:test')
@@ -15,7 +15,7 @@ test('test get', () => {
 })
 
 test('test remove', () => {
-  const db = new KeyValueDB('test1')
+  const db = new KeyValueDB('test1.db')
   db.set('key:test', 'value:test')
   db.remove('key:test')
   expect(db.get('key:test')).toBeNull()
@@ -23,7 +23,7 @@ test('test remove', () => {
 })
 
 test('Key value set', ()=>{
-  const db = new KeyValueDB('test2')
+  const db = new KeyValueDB('test2.db')
   db.set('key:test', 'value:test')
   let res = db.get('key:test')
   expect(res).toBe('value:test')
@@ -32,7 +32,7 @@ test('Key value set', ()=>{
 
 
 test('2 db open', ()=>{
-  const db = new KeyValueDB('test')
+  const db = new KeyValueDB('test.db')
   db.set('test1', "test2")
   db.close()
   const db2 = new KeyValueDB('test')
@@ -41,7 +41,7 @@ test('2 db open', ()=>{
 })
 
 test('Key value remove', ()=>{
-  const db = new KeyValueDB('test3')
+  const db = new KeyValueDB('test3.db')
   db.set('key:test', 'value:test')
   db.remove('key:test')
   let res = db.get('key:test')
@@ -51,7 +51,7 @@ test('Key value remove', ()=>{
 
 
 test('Key value findKeys 2', ()=>{
-  const db = new KeyValueDB('test4')
+  const db = new KeyValueDB('test4.db')
   db.set('key:test', 'value:test')
   db.set('key:test2', 'value:test2')
   db.set('key:123', "value:123")
@@ -61,7 +61,7 @@ test('Key value findKeys 2', ()=>{
 })
 
 test('Key value findKeys', ()=>{
-  const db = new KeyValueDB('test5')
+  const db = new KeyValueDB('test5.db')
   db.set('key:test', 'value:test')
   db.set('key:test2', 'value:test2')
   db.set('key:123', "value:123")
@@ -71,7 +71,7 @@ test('Key value findKeys', ()=>{
 })
 
 test('Key value findKeys rev', ()=>{
-  const db = new KeyValueDB('test6')
+  const db = new KeyValueDB('test6.db')
   db.set('key:2:test', 'value:test')
   db.set('key:3:test2', 'value:test2')
   db.set('key:4:123', "value:123")
@@ -81,7 +81,7 @@ test('Key value findKeys rev', ()=>{
 })
 
 test('Key value findKeys none', ()=>{
-  const db = new KeyValueDB('test7')
+  const db = new KeyValueDB('test7.db')
   db.set('key:2:test', 'value:test')
   db.set('key:3:test2', 'value:test2')
   db.set('key:4:123', "value:123")
@@ -91,7 +91,7 @@ test('Key value findKeys none', ()=>{
 })
 
 test('Key value findKeys 45', ()=>{
-  const db = new KeyValueDB('test8')
+  const db = new KeyValueDB('test8.db')
   db.set('key:2:test', 'value:test')
   db.set('key:3:test2', 'value:test2')
   db.set('key:4:123', "value:123")
@@ -103,7 +103,7 @@ test('Key value findKeys 45', ()=>{
 
 
 test('findKeys with exclusion works', ()=>{
-  const db = new KeyValueDB('test9')
+  const db = new KeyValueDB('test9.db')
   db.set('key:2:test','test')
   db.set('key:2:testa', 'true')
   db.set('key:2:testb', 'true')
@@ -117,7 +117,7 @@ test('findKeys with exclusion works', ()=>{
 
 
 test('findKeys with no matches works', async ()=>{
-  const db = new KeyValueDB('test10')
+  const db = new KeyValueDB('test10.db')
   db.set('key:2:test','test')
   const keys = db.findKeys('123', "key:2:testb*")
   expect(keys).toStrictEqual([])
@@ -126,7 +126,7 @@ test('findKeys with no matches works', async ()=>{
 
 
 test('find keys with no wildcards works', async ()=>{
-  const db = new KeyValueDB('test11')
+  const db = new KeyValueDB('test11.db')
   db.set('key:2:test','')
   db.set('key:2:testa', '')
   const keys = db.findKeys('key:2:testa')
@@ -135,7 +135,7 @@ test('find keys with no wildcards works', async ()=>{
 })
 
 test('get without table', async ()=>{
-  const db = new KeyValueDB('test12')
+  const db = new KeyValueDB('test12.db')
   db.get('234dsfsdfsdf')
   db.destroy()
 })

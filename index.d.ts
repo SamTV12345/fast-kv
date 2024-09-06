@@ -10,3 +10,19 @@ export declare class KeyValueDB {
   destroy(): void
 }
 
+export declare class SQLite {
+  constructor(filename: string)
+  findKeys(key: string, notKey?: string | undefined | null): Array<string>
+  get(key: string): string | null
+  set(key: string, value: string): number | null
+  remove(key: string): void
+  doBulk(bulkObject: Array<BulkObject>): void
+  close(): void
+}
+
+export interface BulkObject {
+  type: string
+  key: string
+  value?: string
+}
+
