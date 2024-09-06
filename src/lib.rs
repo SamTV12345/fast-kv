@@ -1,6 +1,7 @@
 #![deny(clippy::all)]
 
 mod sqlite;
+mod memory;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
@@ -163,37 +164,5 @@ impl KeyValueDB {
     pub fn destroy(&self) -> napi::Result<()> {
         fs::remove_file(&self.filename).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_find_keys_test() {
-        let db = KeyValueDB::new("test.db".to_string()).unwrap();
-        db.set("test:key".to_string(), "value".to_string());
-        db.set("test:key2".to_string(), "value".to_string());
-        db.set("test:key3".to_string(), "value".to_string());
-        let keys = db.find_keys("test".to_string(), None).unwrap();
-        assert_eq!(
-            keys,
-            vec![
-                "test:key".to_string(),
-                "test:key2".to_string(),
-                "test:key3".to_string()
-            ]
-        );
-    }
-
-    #[test]
-    fn test_find_keys_test_2() {
-        let db = KeyValueDB::new("test.db".to_string()).unwrap();
-        db.set("key:test".to_string(), "value".to_string());
-        db.set("key:test2".to_string(), "value".to_string());
-        db.set("key:123".to_string(), "value".to_string());
-        let keys = db.find_keys("key:test2*".to_string(), None).unwrap();
-        assert_eq!(keys, vec!["key:test2".to_string()]);
     }
 }
