@@ -1,6 +1,6 @@
 {
   "name": "rusty-store-kv",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "Template project for writing node package with napi-rs",
   "main": "index.js",
   "types": "index.d.ts",
