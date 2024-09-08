@@ -30,6 +30,7 @@ export declare class Dirty {
   get(key: string): string | null
   set(key: string, val: string): void
   remove(key: string): void
+  findKeys(key: string, notKey?: string | undefined | null): Array<string>
   close(): void
 }
 export declare class KeyValueDB {

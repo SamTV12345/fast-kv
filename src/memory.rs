@@ -1,20 +1,10 @@
 use hashbrown::HashMap;
-use napi::Error;
 use regex::Regex;
+use crate::utils::update_regex;
 
 #[napi(js_name = "MemoryDB")]
 pub struct MemoryDB {
     db: HashMap<String, String>,
-}
-
-
-fn update_regex(key: &str) -> Result<Regex, Error> {
-    let mut not_key_regex_str = "^".to_string();
-    not_key_regex_str.push_str(&key);
-    not_key_regex_str = not_key_regex_str.replace("*", ".*");
-    not_key_regex_str.push('$');
-    Regex::new(&not_key_regex_str)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
 }
 
 

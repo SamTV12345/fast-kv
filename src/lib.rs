@@ -3,6 +3,7 @@
 mod sqlite;
 mod memory;
 mod dirty;
+mod utils;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
@@ -104,13 +105,9 @@ impl KeyValueDB {
     pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
         match &self.db {
             Some(db)=>{
-                let mut regex_key = "^".to_string();
-                regex_key.push_str(&key);
-                regex_key = regex_key.replace("*", ".*");
+                let regex = utils::update_regex(&key).map_err(|e| napi::Error::new
+                    (napi::Status::GenericFailure, format!("{:?}", e)))?;
 
-                regex_key.push('$');
-
-                let regex = regex::Regex::new(&regex_key).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
                 let mut found_keys = Vec::new();
                 let read_txn = db.begin_read().map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e)))?;
                 let table = read_txn
@@ -130,12 +127,8 @@ impl KeyValueDB {
                     let res = x.unwrap();
 
                     if let Some(not_key) = &not_key {
-                        let mut not_regex_key = "^".to_string();
-                        not_regex_key.push_str(&not_key);
-                        not_regex_key = not_regex_key.replace("*", ".*");
-                        not_regex_key.push('$');
+                        let not_regex = utils::update_regex(&not_key).map_err(|e| napi::Error::new(napi::Status::GenericFailure, format!("{:?}", e))).unwrap();
 
-                        let not_regex = regex::Regex::new(&not_regex_key).unwrap();
                         if res.0.value().to_string() != *not_key && regex.is_match(&res.0.value().to_string()) && !not_regex.is_match(&res.0.value().to_string()) {
                             found_keys.push(res.0.value().to_string());
                         }
