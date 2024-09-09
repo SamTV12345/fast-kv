@@ -12,7 +12,7 @@ use hashbrown::HashSet;
 
 #[napi(js_name = "Dirty")]
 pub struct Dirty {
-    mutex: Mutex<File>,
+    mutex: Mutex<Option<File>>,
 }
 
 
@@ -35,6 +35,12 @@ impl From<String> for FileErrorWrapper {
     }
 }
 
+impl From<&str> for FileErrorWrapper {
+    fn from(value: &str) -> Self {
+        FileErrorWrapper(IoError::new(ErrorKind::Other, value))
+    }
+}
+
 // Implement `From` for converting SqliteErrorWrapper to napi::Error
 impl From<FileErrorWrapper> for Error {
     fn from(wrapper: FileErrorWrapper) -> Self {
@@ -53,7 +59,7 @@ pub struct DirtyVal {
 
 #[napi]
 impl Dirty {
-    #[napi(constructor)]
+    //#[napi(constructor)]
     pub fn new(filename: String) -> napi::Result<Self> {
         let file = OpenOptions::new()
             .read(true)
@@ -64,7 +70,7 @@ impl Dirty {
 
         match file {
             Ok(f) => Ok(Dirty {
-                    mutex: Mutex::new(f),
+                    mutex: Mutex::new(Some(f)),
                 })
                 ,
             Err(e) => {
@@ -76,38 +82,48 @@ impl Dirty {
     #[napi]
     pub fn get(&self, key: String) -> napi::Result<Option<String>> {
         let mt = self.mutex.lock().map_err(|e|FileErrorWrapper::from(e.to_string()))?;
-        let rev_lines = RevLines::new(&*mt);
+        match &*mt {
+            Some(mt)=>{
+                let rev_lines = RevLines::new(&*mt);
 
-        for line in rev_lines {
-            match line {
-                Ok(l) => {
-                    let str = l.trim_end();
-                    let dv_res = serde_json::from_str::<DirtyVal>(str);
+                for line in rev_lines {
+                    match line {
+                        Ok(l) => {
+                            let str = l.trim_end();
+                            let dv_res = serde_json::from_str::<DirtyVal>(str);
 
-                    match dv_res {
-                        Ok(dv) => {
-                            if dv.key == key {
-                                if dv.val == DELETED {
-                                    return Ok(None)
+                            match dv_res {
+                                Ok(dv) => {
+                                    if dv.key == key {
+                                        if dv.val == DELETED {
+                                            return Ok(None)
+                                        }
+
+                                        return Ok(Some(dv.val))
+                                    }
+                                },
+                                Err(_) => {
+                                    continue
                                 }
-
-                                return Ok(Some(dv.val))
                             }
                         },
-                        Err(_) => {
-                            continue
+                        Err(e) => {
+                            return Err(Error::from(FileErrorWrapper::from(e.to_string())));
                         }
                     }
-                },
-                Err(e) => {
-                   return Err(Error::from(FileErrorWrapper::from(e.to_string())));
                 }
+                Ok(None)
             }
+            None=>{
+                Err(Error::from(FileErrorWrapper::from("File not opened")))
+            }
+
         }
-        Ok(None)
+
     }
     #[napi]
     pub fn set(&self, key: String, val: String) -> napi::Result<()> {
+
         let dv = DirtyVal {
             key,
             val
@@ -117,11 +133,19 @@ impl Dirty {
 
         let mut mt = self.mutex.lock().map_err(|e|FileErrorWrapper::from(e.to_string()))?;
 
-        serialized.push_str("\n");
-        mt.seek(std::io::SeekFrom::End(0)).map_err(FileErrorWrapper::from)?;
-        mt.write_all(serialized.as_bytes()).map_err(FileErrorWrapper::from)?;
+        match mt.as_mut() {
+            Some(mt)=>{
 
-        Ok(())
+                serialized.push_str("\n");
+                mt.seek(std::io::SeekFrom::End(0)).map_err(FileErrorWrapper::from)?;
+                mt.write_all(serialized.as_bytes()).map_err(FileErrorWrapper::from)?;
+
+                Ok(())
+            }
+            None=>{
+                Err(Error::from(FileErrorWrapper::from("File not opened")))
+            }
+        }
     }
 
     #[napi]
@@ -142,53 +166,63 @@ impl Dirty {
         }
 
         let mt = self.mutex.lock().map_err(|e|FileErrorWrapper::from(e.to_string()))?;
-        let rev_lines = RevLines::new(&*mt);
-        let mut results = HashSet::new();
 
-        for line in rev_lines {
-            match line {
-                Ok(l) => {
-                    let str = l.trim_end();
-                    let dv_res = serde_json::from_str::<DirtyVal>(str);
+        match &*mt {
+            Some(mt)=>{
 
-                    match dv_res {
-                        Ok(dv) => {
-                            if dv.key == DELETED {
-                                deleted_keys.insert(dv.key);
-                                continue
-                            }
 
-                            if deleted_keys.contains(&dv.key) {
-                                continue
-                            }
+                let rev_lines = RevLines::new(&*mt);
+                let mut results = HashSet::new();
 
-                            if key_regex.is_match(&dv.key) {
-                                if let Some(not_key) = &not_key_regex {
-                                    if !not_key.is_match(&dv.key) {
-                                        results.insert(dv.key);
+                for line in rev_lines {
+                    match line {
+                        Ok(l) => {
+                            let str = l.trim_end();
+                            let dv_res = serde_json::from_str::<DirtyVal>(str);
+
+                            match dv_res {
+                                Ok(dv) => {
+                                    if dv.key == DELETED {
+                                        deleted_keys.insert(dv.key);
+                                        continue
                                     }
-                                } else {
-                                    results.insert(dv.key);
+
+                                    if deleted_keys.contains(&dv.key) {
+                                        continue
+                                    }
+
+                                    if key_regex.is_match(&dv.key) {
+                                        if let Some(not_key) = &not_key_regex {
+                                            if !not_key.is_match(&dv.key) {
+                                                results.insert(dv.key);
+                                            }
+                                        } else {
+                                            results.insert(dv.key);
+                                        }
+                                    }
+                                },
+                                Err(_) => {
+                                    continue
                                 }
                             }
                         },
-                        Err(_) => {
-                            continue
+                        Err(e) => {
+                            return Err(Error::from(FileErrorWrapper::from(e.to_string())));
                         }
                     }
-                },
-                Err(e) => {
-                    return Err(Error::from(FileErrorWrapper::from(e.to_string())));
                 }
+                Ok(results.into_iter().collect())
+            }
+            None=>{
+                Err(Error::from(FileErrorWrapper::from("File not opened")))
             }
         }
-        Ok(results.into_iter().collect())
     }
 
     #[napi]
     pub fn close(&self) -> napi::Result<()> {
-        let file = self.mutex.lock().map_err(|e|FileErrorWrapper::from(e.to_string()))?;
-        std::mem::drop(file);
+        let mut file = self.mutex.lock().map_err(|e|FileErrorWrapper::from(e.to_string()))?;
+        *file = None;
         Ok(())
     }
 }
