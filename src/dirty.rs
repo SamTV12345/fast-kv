@@ -54,7 +54,7 @@ pub struct DirtyVal {
 
 #[napi]
 impl Dirty {
-  //#[napi(constructor)]
+  #[napi(constructor)]
   pub fn new(filename: String) -> napi::Result<Self> {
     let file = OpenOptions::new()
       .read(true)
