@@ -4,6 +4,7 @@ mod dirty;
 mod memory;
 mod sqlite;
 mod utils;
+mod lru;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
