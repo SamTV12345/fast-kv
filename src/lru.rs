@@ -1,20 +1,27 @@
 use linked_hash_map::LinkedHashMap;
+use serde_json::Value;
 
-struct LRU<F, K, V>
+struct LRU<K, V>
 where
-    F: Fn(K,V) -> bool, K : Eq + std::hash::Hash + Clone, V: Clone {
+    K : Eq + std::hash::Hash + Clone, V: Clone {
     capacity: usize,
     cache: LinkedHashMap<K, V>,
-    evictable: F
+    evictable: fn(K,V) -> bool
+}
+
+#[derive(Clone)]
+pub struct MapVal {
+    pub value: Value,
+    pub dirty: bool,
+    pub writing_in_progress: bool
 }
 
 
-
-impl<F, K, V> LRU<F, K, V>
+impl<K, V> LRU<K, V>
 where
-    F: Fn(K,V) -> bool, K: std::hash::Hash + Eq + Clone, V: Clone
+    K: std::hash::Hash + Eq + Clone, V: Clone
 {
-    fn new(capacity: usize, evictable: F) -> Self {
+    fn new(capacity: usize, evictable: fn(K,V) -> bool) -> Self {
         LRU {
             capacity,
             cache: LinkedHashMap::new(),
@@ -102,3 +109,17 @@ impl Default for DBSettings {
 }
 
 
+pub struct Database {
+    buffer: LRU<String, MapVal>,
+    settings: DBSettings
+}
+
+impl Database {
+    pub fn new() -> Self {
+        Database {
+            buffer: LRU::new(10000, |k,v:MapVal|!v.dirty && !v.writing_in_progress),
+            settings: DBSettings::default()
+
+        }
+    }
+}
