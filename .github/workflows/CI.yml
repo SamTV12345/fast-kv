@@ -13,6 +13,12 @@ permissions:
       - main
     tags-ignore:
       - '**'
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+      - '**/*.gitignore'
+      - .editorconfig
+      - docs/**
   pull_request: null
   release:
     types: [ published ]
@@ -105,7 +111,6 @@ jobs:
           node-version: 20
           cache: pnpm
           architecture: x86
-      -
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
