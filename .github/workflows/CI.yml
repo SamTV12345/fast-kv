@@ -182,6 +182,8 @@ jobs:
         with:
           name: bindings-${{ matrix.settings.target }}
           path: .
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
       - name: List packages
         run: ls -R .
         shell: bash
