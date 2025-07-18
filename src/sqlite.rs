@@ -1,3 +1,4 @@
+use crate::general::BulkObject;
 use napi::{Error, Status};
 use rusqlite::Error as RusqliteError;
 use rusqlite::{params, params_from_iter, Connection, ToSql};
@@ -29,13 +30,6 @@ impl From<SqliteErrorWrapper> for Error {
 
 const CREATE_TABLE_SQL: &str =
   "CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value TEXT)";
-
-#[napi(object)]
-pub struct BulkObject {
-  pub r#type: String,
-  pub key: String,
-  pub value: Option<String>,
-}
 
 #[napi]
 impl SQLite {

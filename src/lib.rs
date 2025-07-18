@@ -1,10 +1,11 @@
 #![deny(clippy::all)]
 
+mod couch;
 mod dirty;
+mod general;
 mod memory;
 mod sqlite;
 mod utils;
-mod couch;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
