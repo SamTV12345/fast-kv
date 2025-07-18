@@ -7,7 +7,7 @@ pub fn update_regex(key: &str) -> Result<Regex, Error> {
   not_key_regex_str = not_key_regex_str.replace("*", ".*");
   not_key_regex_str.push('$');
   Regex::new(&not_key_regex_str)
-    .map_err(|e| Error::new(napi::Status::GenericFailure, format!("{:?}", e)))
+    .map_err(|e| Error::new(napi::Status::GenericFailure, format!("{e:?}")))
 }
 
 fn simple_glob_to_regexp(s: &str) -> String {

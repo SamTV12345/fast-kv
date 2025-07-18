@@ -7,7 +7,7 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Error as IoError;
 use std::io::Seek;
-use std::io::{ErrorKind, Write};
+use std::io::Write;
 use std::sync::Mutex;
 
 #[napi(js_name = "Dirty")]
@@ -29,13 +29,13 @@ impl From<IoError> for FileErrorWrapper {
 
 impl From<String> for FileErrorWrapper {
   fn from(err: String) -> Self {
-    FileErrorWrapper(IoError::new(ErrorKind::Other, err))
+    FileErrorWrapper(IoError::other(err))
   }
 }
 
 impl From<&str> for FileErrorWrapper {
   fn from(value: &str) -> Self {
-    FileErrorWrapper(IoError::new(ErrorKind::Other, value))
+    FileErrorWrapper(IoError::other(value))
   }
 }
 

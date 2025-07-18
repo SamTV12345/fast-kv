@@ -99,7 +99,7 @@ impl Couch {
             .map_err(CouchDBErrorWrapper::from);
           match result {
             Ok(result) => {
-              return Ok(Some(result.value));
+              Ok(Some(result.value))
             }
             Err(e) => {
               match e {
@@ -107,13 +107,13 @@ impl Couch {
                   ref op_failed,
                 )) => {
                   if op_failed.status == 404 {
-                    return Ok(None); // Document not found
+                    Ok(None)// Document not found
                   } else {
-                    return Err(CouchDBErrorWrapper::from(e).into());
+                    Err(e.into())
                   }
                 }
                 _ => {
-                  return Err(CouchDBErrorWrapper::from(e).into());
+                  Err(e.into())
                 }
               }
             }
@@ -229,7 +229,7 @@ impl Couch {
         }
       }
 
-      db.bulk_docs(&mut *bulk_documents)
+      db.bulk_docs(&mut bulk_documents)
         .await
         .map_err(CouchDBErrorWrapper::from)?;
 
@@ -274,9 +274,9 @@ impl Couch {
         .map_err(CouchDBErrorWrapper::from)?;
       Ok(())
     } else {
-      return Err(napi::Error::from_reason(
+      Err(napi::Error::from_reason(
         "CouchDB client is not initialized",
-      ));
+      ))
     }
   }
 }
