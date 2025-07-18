@@ -98,23 +98,19 @@ impl Couch {
             .await
             .map_err(CouchDBErrorWrapper::from);
           match result {
-            Ok(result) => {
-              Ok(Some(result.value))
-            }
+            Ok(result) => Ok(Some(result.value)),
             Err(e) => {
               match e {
                 CouchDBErrorWrapper(couch_rs::error::CouchError::OperationFailed(
                   ref op_failed,
                 )) => {
                   if op_failed.status == 404 {
-                    Ok(None)// Document not found
+                    Ok(None) // Document not found
                   } else {
                     Err(e.into())
                   }
                 }
-                _ => {
-                  Err(e.into())
-                }
+                _ => Err(e.into()),
               }
             }
           }
