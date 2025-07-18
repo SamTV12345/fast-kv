@@ -20,9 +20,8 @@ hashbrown = "0.15.4"
 rev_lines = "0.3.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
-couch_rs = { version = "0.12.0", features = ["rustls-tls", "rustls-tls-manual-roots", "rustls-tls-native-roots",
-    "rustls-tls-webpki-roots", "native-tls-vendored"] }
-openssl = { version = "0.10", optional = true, features = ["vendored"] }
+couch_rs = { version = "0.12.0", default-features = false, features = ["rustls-tls", "rustls-tls-manual-roots",
+    "rustls-tls-webpki-roots", "derive"] }
 
 [build-dependencies]
 napi-build = "3.0.0-beta.0"
