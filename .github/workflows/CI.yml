@@ -111,6 +111,7 @@ jobs:
           node-version: 20
           cache: pnpm
           architecture: x86
+      -
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
