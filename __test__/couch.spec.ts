@@ -30,14 +30,25 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
           retries: 5,
         })
         .start()
+      db = new Couch({
+        host: process.env['COUCH_DB_HOST'] ?? 'localhost',
+        database: 'test',
+        port: 5984,
+        user: 'ueberdb',
+        password: 'ueberdb',
+      })
+    } else {
+      db = new Couch({
+        host: "couchdb",
+        database: 'test',
+        port: 5984,
+        user: 'ueberdb',
+        password: 'ueberdb',
+      })
     }
-    db = new Couch({
-      host: process.env['COUCH_DB_HOST'] ?? 'localhost',
-      database: 'test',
-      port: 5984,
-      user: 'ueberdb',
-      password: 'ueberdb',
-    })
+
+
+
 
   })
 
