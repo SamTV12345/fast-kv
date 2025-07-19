@@ -303,6 +303,7 @@ jobs:
           run: npm run test
         env:
           CI: true
+          COUCH_DB_HOST: couchdb
   test-wasi:
     if: false
     name: Test WASI target
