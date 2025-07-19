@@ -194,7 +194,7 @@ impl Postgres {
   pub fn close(&mut self) -> napi::Result<()> {
     if let Some(db) = self.db.take() {
       // Take ownership and drop the connection
-      db.close().map_err(|e| PostgresErrorWrapper::from(e))?;
+      db.close().map_err(PostgresErrorWrapper::from)?;
       self.db = None;
     }
     Ok(())
