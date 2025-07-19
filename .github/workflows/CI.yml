@@ -51,6 +51,7 @@ jobs:
   build:
     strategy:
       fail-fast: false
+
       matrix:
         settings:
           - host: macos-latest
@@ -144,6 +145,19 @@ jobs:
           path: '*.node'
           if-no-files-found: error
   test-macOS-windows-binding:
+    services:
+      couchdb:
+        image: couchdb:3.3.2
+        env:
+          COUCHDB_USER: 'ueberdb'
+          COUCHDB_PASSWORD: 'ueberdb'
+        ports:
+          - 5984:5984
+        options: >-
+          --health-cmd="curl -f http://localhost:5984/_up" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
       - build
@@ -189,7 +203,22 @@ jobs:
         shell: bash
       - name: Test bindings
         run: pnpm test
+        env:
+          CI: true
   test-linux-binding:
+    services:
+      couchdb:
+        image: couchdb:3.3.2
+        env:
+          COUCHDB_USER: 'ueberdb'
+          COUCHDB_PASSWORD: 'ueberdb'
+        ports:
+          - 5984:5984
+        options: >-
+          --health-cmd="curl -f http://localhost:5984/_up" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
     name: Test ${{ matrix.target }} - node@${{ matrix.node }}
     needs:
       - build
@@ -255,9 +284,11 @@ jobs:
         if: ${{ contains(matrix.target, 'armv7') }}
       - name: Test bindings
         uses: addnab/docker-run-action@v3
+        env:
+          CI: true
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
-          options: '-v /var/run/docker.sock:/var/run/docker.sock -v ${{ steps.docker.outputs.PNPM_STORE_PATH }}:${{ steps.docker.outputs.PNPM_STORE_PATH }} -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
+          options: '-v ${{ steps.docker.outputs.PNPM_STORE_PATH }}:${{ steps.docker.outputs.PNPM_STORE_PATH }} -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
           run: npm run test
   publish:
     name: Publish

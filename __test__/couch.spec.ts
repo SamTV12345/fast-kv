@@ -13,27 +13,31 @@ describe.sequential('couch db tests', async () => {
   let container: StartedTestContainer
 
   beforeAll(async () => {
-    container = await new GenericContainer('couchdb:latest')
-      .withExposedPorts(...portMappings)
-      .withEnvironment({
-        COUCHDB_USER: 'ueberdb',
-        COUCHDB_PASSWORD: 'ueberdb',
-      })
-      .withHealthCheck({
-        test: ['CMD-SHELL', 'curl -f http://localhost:5984/_up || exit 1'],
-        interval: 10000,
-        timeout: 5000,
-        retries: 5,
-      })
-      .start()
+
+    if (!process.env['CI']) {
+      container = await new GenericContainer('couchdb:latest')
+        .withExposedPorts(...portMappings)
+        .withEnvironment({
+          COUCHDB_USER: 'ueberdb',
+          COUCHDB_PASSWORD: 'ueberdb',
+        })
+        .withHealthCheck({
+          test: ['CMD-SHELL', 'curl -f http://localhost:5984/_up || exit 1'],
+          interval: 10000,
+          timeout: 5000,
+          retries: 5,
+        })
+        .start()
 
       db = new Couch({
-      host: 'localhost',
-      database: 'test',
-      port: 5984,
-      user: 'ueberdb',
-      password: 'ueberdb',
-    })
+        host: 'localhost',
+        database: 'test',
+        port: 5984,
+        user: 'ueberdb',
+        password: 'ueberdb',
+      })
+    }
+
   })
 
   beforeEach(async ()=>{
@@ -153,7 +157,9 @@ describe.sequential('couch db tests', async () => {
   })
 
   afterAll(async () => {
-    await container.stop()
+    if (!process.env['CI']) {
+      await container.stop()
+    }
   })
 })
 
