@@ -30,15 +30,14 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
           retries: 5,
         })
         .start()
-
-      db = new Couch({
-        host: 'localhost',
-        database: 'test',
-        port: 5984,
-        user: 'ueberdb',
-        password: 'ueberdb',
-      })
     }
+    db = new Couch({
+      host: 'localhost',
+      database: 'test',
+      port: 5984,
+      user: 'ueberdb',
+      password: 'ueberdb',
+    })
 
   })
 
