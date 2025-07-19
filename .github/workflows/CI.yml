@@ -224,7 +224,7 @@ jobs:
   test-linux-binding:
     services:
       couchdb:
-        image: couchdb:3.3.2
+        image: couchdb:3.5.0
         env:
           COUCHDB_USER: 'ueberdb'
           COUCHDB_PASSWORD: 'ueberdb'
@@ -299,7 +299,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
-          options: '-v ${{ steps.docker.outputs.PNPM_STORE_PATH }}:${{ steps.docker.outputs.PNPM_STORE_PATH }} -e CI=true -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
+          options: '-v ${{ steps.docker.outputs.PNPM_STORE_PATH }}:${{ steps.docker.outputs.PNPM_STORE_PATH }} -e CI=true -e COUCH_DB_HOST=couchdb -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
           run: npm run test
         env:
           CI: true

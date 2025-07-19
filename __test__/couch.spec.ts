@@ -32,7 +32,7 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
         .start()
     }
     db = new Couch({
-      host: 'localhost',
+      host: process.env['COUCH_DB_HOST'] ?? 'localhost',
       database: 'test',
       port: 5984,
       user: 'ueberdb',
