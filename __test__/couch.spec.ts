@@ -12,6 +12,11 @@ describe.sequential('couch db tests', async () => {
 
   let container: StartedTestContainer
 
+  if (process.env['CI-SKIP']) {
+    console.log('Skipping CouchDB tests in CI environment')
+   return
+  }
+
   beforeAll(async () => {
 
     if (!process.env['CI']) {
