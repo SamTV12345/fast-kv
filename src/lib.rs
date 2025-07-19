@@ -4,6 +4,7 @@ mod couch;
 mod dirty;
 mod general;
 mod memory;
+mod postgres;
 mod sqlite;
 mod utils;
 

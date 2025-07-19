@@ -40,6 +40,17 @@ export declare class MemoryDB {
   close(): void
 }
 
+export declare class Postgres {
+  constructor(filename: PostgresSettings)
+  findKeys(key: string, notKey?: string | undefined | null): Array<string>
+  get(key: string): string | null
+  set(key: string, value: string): number | null
+  remove(key: string): void
+  doBulk(bulkObject: Array<BulkObject>): void
+  close(): void
+  destroy(): void
+}
+
 export declare class SQLite {
   constructor(filename: string)
   findKeys(key: string, notKey?: string | undefined | null): Array<string>
@@ -62,4 +73,12 @@ export interface CouchDbSettings {
   host: string
   port: number
   database: string
+}
+
+export interface PostgresSettings {
+  user: string
+  database: string
+  port: number
+  host: string
+  password: string
 }
