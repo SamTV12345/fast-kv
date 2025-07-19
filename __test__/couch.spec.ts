@@ -5,21 +5,18 @@ import { expect, test, describe, afterAll, afterEach, beforeAll, beforeEach } fr
 import { GenericContainer, PortWithOptionalBinding, StartedTestContainer } from 'testcontainers'
 
 
-describe.sequential('couch db tests', async () => {
+const SKIP_TESTS = (process.env.CI_SKIP != null);
+
+(SKIP_TESTS ? describe.skip : describe.sequential)('couch db tests', async () => {
   const portMappings: PortWithOptionalBinding[] = [{ container: 5984, host: 5984 }]
 
   let db: Couch
 
   let container: StartedTestContainer
 
-  if (process.env['CI-SKIP']) {
-    console.log('Skipping CouchDB tests in CI environment')
-   return
-  }
-
   beforeAll(async () => {
-
-    if (!process.env['CI']) {
+    console.log('CI Environment:', process.env['CI'])
+    if (process.env['CI'] != null) {
       container = await new GenericContainer('couchdb:latest')
         .withExposedPorts(...portMappings)
         .withEnvironment({
@@ -162,7 +159,7 @@ describe.sequential('couch db tests', async () => {
   })
 
   afterAll(async () => {
-    if (!process.env['CI']) {
+    if (process.env.CI != null) {
       await container.stop()
     }
   })
