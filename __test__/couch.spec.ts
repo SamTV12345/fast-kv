@@ -159,7 +159,7 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
   })
 
   afterAll(async () => {
-    if (process.env.CI != null) {
+    if (process.env.CI == null) {
       await container.stop()
     }
   })
