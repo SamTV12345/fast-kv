@@ -4,9 +4,9 @@ mod couch;
 mod dirty;
 mod general;
 mod memory;
+mod postgres;
 mod sqlite;
 mod utils;
-mod postgres;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
