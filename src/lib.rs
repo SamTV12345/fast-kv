@@ -6,6 +6,7 @@ mod general;
 mod memory;
 mod sqlite;
 mod utils;
+mod postgres;
 
 use redb::{Database, ReadableTable, TableDefinition};
 use std::fs;
