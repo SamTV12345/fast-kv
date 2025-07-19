@@ -238,9 +238,11 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_USER: "ueberdb",
-          POSTGRES_PASSWORD: "ueberdb",
-          POSTGRES_DB: "ueberdb"
+          POSTGRES_USER: 'ueberdb'
+          POSTGRES_PASSWORD: 'ueberdb'
+          POSTGRES_DB: 'ueberdb'
+        ports:
+          - 5432:5432
     name: Test ${{ matrix.target }} - node@${{ matrix.node }}
     needs:
       - build
