@@ -14,6 +14,26 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
 
   let container: StartedTestContainer
 
+  const getCouchDB = ()=>{
+    if (process.env['CI'] == null) {
+      return new Couch({
+        host: 'localhost',
+        database: 'test',
+        port: 5984,
+        user: 'ueberdb',
+        password: 'ueberdb',
+      })
+    } else {
+      return new Couch({
+        host: "couchdb",
+        database: 'test',
+        port: 5984,
+        user: 'ueberdb',
+        password: 'ueberdb',
+      })
+    }
+  }
+
   beforeAll(async () => {
     console.log('CI Environment:', process.env['CI'])
     if (process.env['CI'] == null) {
@@ -30,26 +50,9 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
           retries: 5,
         })
         .start()
-      db = new Couch({
-        host: process.env['COUCH_DB_HOST'] ?? 'localhost',
-        database: 'test',
-        port: 5984,
-        user: 'ueberdb',
-        password: 'ueberdb',
-      })
-    } else {
-      db = new Couch({
-        host: "couchdb",
-        database: 'test',
-        port: 5984,
-        user: 'ueberdb',
-        password: 'ueberdb',
-      })
     }
 
-
-
-
+    db = getCouchDB()
   })
 
   beforeEach(async ()=>{
@@ -78,13 +81,7 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
 
   test('2 db open', async () => {
     await db.set('test1', 'test2')
-    const db2 = new Couch({
-      host: 'localhost',
-      database: 'test',
-      port: 5984,
-      user: 'ueberdb',
-      password: 'ueberdb',
-    })
+    const db2 = getCouchDB()
     await db2.init()
     await db2.set('test2', 'test2')
   })
