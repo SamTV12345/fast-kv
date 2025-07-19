@@ -16,7 +16,7 @@ const SKIP_TESTS = (process.env.CI_SKIP != null);
 
   beforeAll(async () => {
     console.log('CI Environment:', process.env['CI'])
-    if (process.env['CI'] != null) {
+    if (process.env['CI'] == null) {
       container = await new GenericContainer('couchdb:latest')
         .withExposedPorts(...portMappings)
         .withEnvironment({
