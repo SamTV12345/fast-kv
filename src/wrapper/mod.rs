@@ -3,3 +3,5 @@ pub mod sub_path;
 pub mod locks;
 pub mod metrics;
 pub mod logger;
+pub mod cache;
+pub mod write_buffer;
