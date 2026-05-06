@@ -48,7 +48,7 @@ pub fn set_sub(root: &mut Value, path: &[String], new_value: Value) -> Result<()
                 value: value_repr,
             });
         }
-        let map = cur.as_object_mut().unwrap();
+        let map = cur.as_object_mut().expect("guarded by the is_object check above");
         if is_last {
             map.insert(segment.clone(), new_value);
             return Ok(());
