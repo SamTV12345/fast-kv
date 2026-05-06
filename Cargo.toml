@@ -26,11 +26,12 @@ couch_rs = { version = "0.12.0", default-features = false, features = ["native-t
 postgres={version = "0.19.10"}
 async-trait = "0.1"
 dashmap = "6.0"
-tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "sync", "time"] }
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util"] }
 moka = { version = "0.12", features = ["future"] }
 tokio-util = "0.7"
 
 [dev-dependencies]
+tempfile = "3"
 
 [build-dependencies]
 napi-build = "2"

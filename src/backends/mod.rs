@@ -35,6 +35,7 @@ pub struct DefaultWrapperHints {
     pub json: Option<bool>,
 }
 
+pub mod dirty;
 pub mod memory;
 
 pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backend>> {
