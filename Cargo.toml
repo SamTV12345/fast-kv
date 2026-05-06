@@ -1,10 +1,10 @@
 [package]
-authors = ["LongYinan <lynweklm@gmail.com>"]
+authors = ["SamTV12345", "LongYinan <lynweklm@gmail.com>"]
 edition = "2021"
-name = "rusty-store-kv"
+name = "ueberdb"
 version = "0.1.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "ueberDB Rust port — multi-backend key-value abstraction with cache, write buffer, and napi binding"
+license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib"]
