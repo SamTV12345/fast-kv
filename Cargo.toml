@@ -10,6 +10,8 @@ license = "Apache-2.0"
 crate-type = ["cdylib"]
 
 [dependencies]
+thiserror = "1.0"
+anyhow = "1.0"
 napi = {version = "3.0.0", features = ["tokio_rt"]}
 napi-derive = "3.0.0"
 redb = "2.1.2"
