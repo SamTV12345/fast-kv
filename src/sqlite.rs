@@ -3,7 +3,6 @@ use napi::{Error, Status};
 use rusqlite::Error as RusqliteError;
 use rusqlite::{params, params_from_iter, Connection, ToSql};
 
-#[napi(js_name = "SQLite")]
 pub struct SQLite {
   db: Option<Connection>,
 }
@@ -31,9 +30,7 @@ impl From<SqliteErrorWrapper> for Error {
 const CREATE_TABLE_SQL: &str =
   "CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value TEXT)";
 
-#[napi]
 impl SQLite {
-  #[napi(constructor)]
   pub fn new(filename: String) -> napi::Result<Self> {
     let conn;
 
@@ -58,7 +55,6 @@ impl SQLite {
 
     Ok(SQLite { db: conn })
   }
-  #[napi]
   pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     match &self.db {
       Some(db) => {
@@ -94,7 +90,6 @@ impl SQLite {
     }
   }
 
-  #[napi]
   pub fn get(&self, key: String) -> napi::Result<Option<String>> {
     match &self.db {
       Some(db) => {
@@ -120,7 +115,6 @@ impl SQLite {
     }
   }
 
-  #[napi]
   pub fn set(&self, key: String, value: String) -> napi::Result<Option<i32>> {
     match &self.db {
       Some(db) => {
@@ -139,7 +133,6 @@ impl SQLite {
     }
   }
 
-  #[napi]
   pub fn remove(&self, key: String) -> napi::Result<()> {
     match &self.db {
       Some(db) => {
@@ -157,7 +150,6 @@ impl SQLite {
       )),
     }
   }
-  #[napi]
   pub fn do_bulk(&mut self, bulk_object: Vec<BulkObject>) -> napi::Result<()> {
     match self.db {
       Some(ref mut db) => {
@@ -190,7 +182,6 @@ impl SQLite {
       )),
     }
   }
-  #[napi]
   pub fn close(&mut self) -> napi::Result<()> {
     if let Some(db) = self.db.take() {
       // Take ownership and drop the connection

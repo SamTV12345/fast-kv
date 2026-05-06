@@ -10,7 +10,6 @@ use std::io::Seek;
 use std::io::Write;
 use std::sync::Mutex;
 
-#[napi(js_name = "Dirty")]
 pub struct Dirty {
   mutex: Mutex<Option<File>>,
 }
@@ -52,9 +51,7 @@ pub struct DirtyVal {
   pub val: String,
 }
 
-#[napi]
 impl Dirty {
-  #[napi(constructor)]
   pub fn new(filename: String) -> napi::Result<Self> {
     let file = OpenOptions::new()
       .read(true)
@@ -69,7 +66,6 @@ impl Dirty {
       Err(e) => Err(FileErrorWrapper::from(e.to_string()).into()),
     }
   }
-  #[napi]
   pub fn get(&self, key: String) -> napi::Result<Option<String>> {
     let mt = self
       .mutex
@@ -108,7 +104,6 @@ impl Dirty {
       None => Err(Error::from(FileErrorWrapper::from("File not opened"))),
     }
   }
-  #[napi]
   pub fn set(&self, key: String, val: String) -> napi::Result<()> {
     let dv = DirtyVal { key, val };
 
@@ -134,11 +129,9 @@ impl Dirty {
     }
   }
 
-  #[napi]
   pub fn remove(&self, key: String) -> napi::Result<()> {
     self.set(key, DELETED.to_string())
   }
-  #[napi]
   pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     let not_key_regex: Option<regex::Regex>;
     let key_regex = utils::update_regex(&key).map_err(|e| FileErrorWrapper::from(e.to_string()))?;
@@ -202,7 +195,6 @@ impl Dirty {
     }
   }
 
-  #[napi]
   pub fn close(&self) -> napi::Result<()> {
     let mut file = self
       .mutex

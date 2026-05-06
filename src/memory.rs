@@ -2,7 +2,6 @@ use crate::utils::update_regex;
 use hashbrown::HashMap;
 use regex::Regex;
 
-#[napi(js_name = "MemoryDB")]
 pub struct MemoryDB {
   db: HashMap<String, String>,
 }
@@ -13,28 +12,22 @@ impl Default for MemoryDB {
   }
 }
 
-#[napi]
 impl MemoryDB {
-  #[napi(constructor)]
   pub fn new() -> Self {
     MemoryDB { db: HashMap::new() }
   }
-  #[napi]
   pub fn get(&self, key: String) -> napi::Result<Option<String>> {
     let val = self.db.get(&key).cloned();
     Ok(val)
   }
-  #[napi]
   pub fn set(&mut self, key: String, value: String) -> napi::Result<()> {
     self.db.insert(key, value);
     Ok(())
   }
-  #[napi]
   pub fn remove(&mut self, key: String) -> napi::Result<()> {
     self.db.remove(&key);
     Ok(())
   }
-  #[napi]
   pub fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     let not_key_regex: Option<Regex>;
     let key_regex = update_regex(&key)?;
@@ -60,7 +53,6 @@ impl MemoryDB {
 
     Ok(result)
   }
-  #[napi]
   pub fn close(&mut self) -> napi::Result<()> {
     self.db.clear();
     Ok(())

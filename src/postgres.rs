@@ -3,7 +3,6 @@ use napi::{Error, Status};
 use postgres::types::ToSql;
 use postgres::{Client, Error as PostgresError, NoTls};
 
-#[napi(js_name = "Postgres")]
 pub struct Postgres {
   db: Option<Client>,
 }
@@ -28,7 +27,6 @@ impl From<PostgresErrorWrapper> for Error {
   }
 }
 
-#[napi(object)]
 pub struct PostgresSettings {
   pub user: String,
   pub database: String,
@@ -40,9 +38,7 @@ pub struct PostgresSettings {
 const CREATE_TABLE_SQL: &str =
   "CREATE TABLE IF NOT EXISTS store (key TEXT PRIMARY KEY, value TEXT)";
 
-#[napi]
 impl Postgres {
-  #[napi(constructor)]
   pub fn new(filename: PostgresSettings) -> napi::Result<Self> {
     let mut client = Client::connect(
       &format!(
@@ -58,7 +54,6 @@ impl Postgres {
       .map_err(PostgresErrorWrapper::from)?;
     Ok(Postgres { db: Some(client) })
   }
-  #[napi]
   pub fn find_keys(&mut self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     match &mut self.db {
       Some(db) => {
@@ -95,7 +90,6 @@ impl Postgres {
     }
   }
 
-  #[napi]
   pub fn get(&mut self, key: String) -> napi::Result<Option<String>> {
     match &mut self.db {
       Some(db) => {
@@ -120,7 +114,6 @@ impl Postgres {
     }
   }
 
-  #[napi]
   pub fn set(&mut self, key: String, value: String) -> napi::Result<Option<i64>> {
     match &mut self.db {
       Some(db) => {
@@ -142,7 +135,6 @@ impl Postgres {
     }
   }
 
-  #[napi]
   pub fn remove(&mut self, key: String) -> napi::Result<()> {
     match &mut self.db {
       Some(db) => {
@@ -159,7 +151,6 @@ impl Postgres {
       )),
     }
   }
-  #[napi]
   pub fn do_bulk(&mut self, bulk_object: Vec<BulkObject>) -> napi::Result<()> {
     match self.db {
       Some(ref mut db) => {
@@ -190,7 +181,6 @@ impl Postgres {
       )),
     }
   }
-  #[napi]
   pub fn close(&mut self) -> napi::Result<()> {
     if let Some(db) = self.db.take() {
       // Take ownership and drop the connection
@@ -200,7 +190,6 @@ impl Postgres {
     Ok(())
   }
 
-  #[napi]
   pub fn destroy(&mut self) -> napi::Result<()> {
     if let Some(db) = &mut self.db {
       db.execute("DELETE FROM store", &[])

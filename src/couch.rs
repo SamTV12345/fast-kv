@@ -8,14 +8,12 @@ use napi::{Error, Status};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[napi(js_name = "Couch")]
 pub struct Couch {
   db: Option<Client>,
   database: Option<couch_rs::database::Database>,
   settings: CouchDBSettings,
 }
 
-#[napi(object)]
 pub struct CouchDBSettings {
   pub user: String,
   pub password: String,
@@ -54,9 +52,7 @@ pub struct StringDoc {
   pub value: String,
 }
 
-#[napi]
 impl Couch {
-  #[napi(constructor)]
   pub fn new(settings: CouchDBSettings) -> napi::Result<Self> {
     let client = Client::new(
       &format!("http://{}:{}", settings.host, settings.port),
@@ -72,8 +68,7 @@ impl Couch {
     })
   }
 
-  #[napi]
-  pub async unsafe fn init(&mut self) -> napi::Result<()> {
+  pub async fn init(&mut self) -> napi::Result<()> {
     if let Some(db) = &self.db {
       let db = db
         .db(&self.settings.database)
@@ -88,8 +83,7 @@ impl Couch {
 
     Ok(())
   }
-  #[napi]
-  pub async unsafe fn get(&self, key: String) -> napi::Result<Option<String>> {
+  pub async fn get(&self, key: String) -> napi::Result<Option<String>> {
     if let Some(db) = &self.db {
       match db.db(&self.settings.database).await {
         Ok(db) => {
@@ -123,7 +117,6 @@ impl Couch {
       ))
     }
   }
-  #[napi]
   pub async fn find_keys(&self, key: String, not_key: Option<String>) -> napi::Result<Vec<String>> {
     if let Some(db) = &self.database {
       let pfx_len = key.find("*");
@@ -171,7 +164,6 @@ impl Couch {
       ))
     }
   }
-  #[napi]
   pub async fn set(&self, key: String, value: String) -> napi::Result<()> {
     if let Some(db) = &self.database {
       let mut doc = StringDoc {
@@ -190,7 +182,6 @@ impl Couch {
       ))
     }
   }
-  #[napi]
   pub async fn do_bulk(&self, bulk: Vec<BulkObject>) -> napi::Result<()> {
     if let Some(db) = &self.database {
       let document_ids: Vec<DocumentId> = bulk
@@ -237,7 +228,6 @@ impl Couch {
     }
   }
 
-  #[napi]
   pub async fn remove(&self, key: String) -> napi::Result<()> {
     if let Some(db) = &self.database {
       let document = db
@@ -255,14 +245,12 @@ impl Couch {
     }
   }
 
-  #[napi]
   pub fn close(&mut self) -> napi::Result<()> {
     self.db = None;
     self.database = None;
     Ok(())
   }
 
-  #[napi]
   pub async fn destroy(&self) -> napi::Result<()> {
     if let Some(db) = &self.db {
       db.destroy_db(&self.settings.database)
