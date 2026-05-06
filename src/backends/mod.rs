@@ -43,8 +43,13 @@ pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backen
 }
 
 #[cfg(test)]
+pub mod test_stub;
+
+#[cfg(test)]
 mod tests {
     use super::*;
+    use super::test_stub::StubBackend;
+    use serde_json::json;
 
     #[tokio::test]
     async fn factory_unknown_backend_errors() {
@@ -53,5 +58,18 @@ mod tests {
         assert!(result.is_err());
         let err = result.err().unwrap();
         assert!(matches!(err, UeberError::UnknownBackend(_)));
+    }
+
+    #[tokio::test]
+    async fn stub_round_trip() {
+        let mut b = StubBackend::default();
+        b.init().await.unwrap();
+        b.set("k", &json!(1)).await.unwrap();
+        assert_eq!(b.get("k").await.unwrap(), Some(json!(1)));
+        b.remove("k").await.unwrap();
+        assert!(b.get("k").await.unwrap().is_none());
+        // Verify call log captured the sequence.
+        let log = b.call_log.lock().unwrap().clone();
+        assert_eq!(log, vec!["init", "set:k", "get:k", "remove:k", "get:k"]);
     }
 }
