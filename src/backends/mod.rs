@@ -35,6 +35,8 @@ pub struct DefaultWrapperHints {
     pub json: Option<bool>,
 }
 
+pub mod memory;
+
 pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backend>> {
     match type_ {
         #[cfg(test)]
