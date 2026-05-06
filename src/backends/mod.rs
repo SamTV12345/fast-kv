@@ -12,7 +12,7 @@ pub enum BulkOp {
 #[async_trait]
 pub trait Backend: Send + Sync {
     async fn init(&mut self) -> Result<()>;
-    async fn close(&mut self) -> Result<()>;
+    async fn close(&self) -> Result<()>;
     async fn get(&self, key: &str) -> Result<Option<Value>>;
     async fn set(&self, key: &str, value: &Value) -> Result<()>;
     async fn remove(&self, key: &str) -> Result<()>;
@@ -37,6 +37,8 @@ pub struct DefaultWrapperHints {
 
 pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backend>> {
     match type_ {
+        #[cfg(test)]
+        "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         // Phase 3 tasks each register a backend here.
         other => Err(UeberError::UnknownBackend(other.to_string())),
     }

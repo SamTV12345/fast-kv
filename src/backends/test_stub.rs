@@ -21,7 +21,7 @@ impl Backend for StubBackend {
         self.call_log.lock().unwrap().push("init".into());
         Ok(())
     }
-    async fn close(&mut self) -> Result<()> {
+    async fn close(&self) -> Result<()> {
         self.call_log.lock().unwrap().push("close".into());
         Ok(())
     }

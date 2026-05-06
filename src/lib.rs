@@ -7,6 +7,9 @@ mod wrapper;
 
 pub use settings::{Settings, WrapperSettings};
 
+mod db;
+pub use db::Database;
+
 // Legacy modules retained temporarily for reference; will be removed end of Phase 2.
 mod couch;
 mod dirty;
