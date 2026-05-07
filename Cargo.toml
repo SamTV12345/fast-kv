@@ -43,13 +43,17 @@ tempfile = "3"
 [build-dependencies]
 napi-build = "2"
 
-# Smallest single-binary release. opt-level "s" trades a slice of speed
-# for substantially smaller code than the default "3"; lto + 1
-# codegen unit unlocks cross-crate inlining and dead-code elimination;
-# panic=abort drops the unwinding tables; strip=symbols removes the
-# debug-info section.
+# Smallest single-binary release that still fits a 7 GB CI runner.
+# - opt-level "s" trades a slice of speed for substantially smaller code
+#   than the default "3"
+# - thin LTO keeps cross-crate inlining + dead-code elimination but caps
+#   peak linker RAM (fat LTO with all 14 driver crates ran the
+#   x86_64/aarch64 GNU CI jobs out of memory)
+# - codegen-units = 1 maximizes optimization opportunities
+# - panic = "abort" drops the unwinding tables
+# - strip = "symbols" removes the debug-info section
 [profile.release]
-lto = "fat"
+lto = "thin"
 codegen-units = 1
 opt-level = "s"
 panic = "abort"
