@@ -56,19 +56,45 @@ impl WriteBuffer {
         self.notify.notify_one();
     }
 
-    /// Drain up to `bulk_limit` ops from the pending map.
-    fn drain_batch(&self) -> Vec<BulkOp> {
-        let mut out = Vec::with_capacity(self.pending.len().min(self.bulk_limit));
-        let keys: Vec<String> = self.pending.iter().map(|e| e.key().clone()).collect();
-        for k in keys.into_iter().take(self.bulk_limit) {
-            if let Some((key, op)) = self.pending.remove(&k) {
-                out.push(match op {
-                    BufferedOp::Set(v) => BulkOp::Set { key, value: v },
-                    BufferedOp::Remove => BulkOp::Remove { key },
-                });
+    /// Snapshot up to `bulk_limit` ops from the pending map without removing them.
+    /// Entries are removed by `commit_flushed` only after `do_bulk` succeeds —
+    /// otherwise concurrent `buffered_get` could see a key in neither the buffer
+    /// nor the backend during the do_bulk window.
+    fn snapshot_batch(&self) -> Vec<BulkOp> {
+        self.pending
+            .iter()
+            .take(self.bulk_limit)
+            .map(|e| match e.value() {
+                BufferedOp::Set(v) => BulkOp::Set {
+                    key: e.key().clone(),
+                    value: v.clone(),
+                },
+                BufferedOp::Remove => BulkOp::Remove {
+                    key: e.key().clone(),
+                },
+            })
+            .collect()
+    }
+
+    /// Remove entries from `pending` whose value matches what was just flushed.
+    /// If a concurrent `enqueue_*` re-wrote the key after the snapshot, the
+    /// values won't match and we leave it for the next flush.
+    fn commit_flushed(&self, batch: &[BulkOp]) {
+        for op in batch {
+            match op {
+                BulkOp::Set { key, value } => {
+                    self.pending.remove_if(key, |_, current| match current {
+                        BufferedOp::Set(v) => v == value,
+                        BufferedOp::Remove => false,
+                    });
+                }
+                BulkOp::Remove { key } => {
+                    self.pending.remove_if(key, |_, current| {
+                        matches!(current, BufferedOp::Remove)
+                    });
+                }
             }
         }
-        out
     }
 
     /// Spawn the background flush task. Returns the cancellation handle.
@@ -117,7 +143,7 @@ impl WriteBuffer {
         metrics: &Arc<MetricsCore>,
     ) {
         loop {
-            let batch = this.drain_batch();
+            let batch = this.snapshot_batch();
             if batch.is_empty() {
                 break;
             }
@@ -126,6 +152,7 @@ impl WriteBuffer {
             if backend.do_bulk(&batch).await.is_err() {
                 break;
             }
+            this.commit_flushed(&batch);
             if this.pending.is_empty() {
                 break;
             }
@@ -139,13 +166,14 @@ impl WriteBuffer {
         metrics: &Arc<MetricsCore>,
     ) -> Result<()> {
         loop {
-            let batch = self.drain_batch();
+            let batch = self.snapshot_batch();
             if batch.is_empty() {
                 return Ok(());
             }
             metrics.inc(&metrics.bulks);
             metrics.inc(&metrics.flushes);
             backend.do_bulk(&batch).await?;
+            self.commit_flushed(&batch);
             if self.pending.is_empty() {
                 return Ok(());
             }
@@ -164,7 +192,7 @@ mod tests {
         let wb = WriteBuffer::new(0, 100);
         wb.enqueue_set("k".into(), json!(1));
         wb.enqueue_set("k".into(), json!(2));
-        let batch = wb.drain_batch();
+        let batch = wb.snapshot_batch();
         assert_eq!(batch.len(), 1);
         match &batch[0] {
             BulkOp::Set { key, value } => {
@@ -173,6 +201,32 @@ mod tests {
             }
             _ => panic!("expected Set"),
         }
+    }
+
+    #[tokio::test]
+    async fn buffered_get_visible_until_commit_flushed() {
+        // Regression: previously `drain_batch` removed pending entries before
+        // do_bulk completed, so a concurrent `buffered_get` could see neither
+        // the buffer nor the backend.
+        let wb = WriteBuffer::new(0, 100);
+        wb.enqueue_set("k".into(), json!(1));
+        let snapshot = wb.snapshot_batch();
+        // Snapshot taken — value still visible to readers.
+        assert_eq!(wb.buffered_get("k"), Some(Some(json!(1))));
+        wb.commit_flushed(&snapshot);
+        assert!(wb.buffered_get("k").is_none());
+    }
+
+    #[tokio::test]
+    async fn commit_flushed_keeps_concurrently_rewritten_entry() {
+        let wb = WriteBuffer::new(0, 100);
+        wb.enqueue_set("k".into(), json!(1));
+        let snapshot = wb.snapshot_batch();
+        // Simulate a concurrent set after the snapshot but before commit.
+        wb.enqueue_set("k".into(), json!(2));
+        wb.commit_flushed(&snapshot);
+        // The newer write must survive the commit.
+        assert_eq!(wb.buffered_get("k"), Some(Some(json!(2))));
     }
 
     #[tokio::test]

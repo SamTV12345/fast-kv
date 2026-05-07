@@ -39,11 +39,13 @@ pub mod dirty;
 pub mod memory;
 pub mod sqlite;
 
-pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backend>> {
+pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend>> {
     match type_ {
+        "memory" => Ok(Box::new(memory::MemoryBackend::default())),
+        "dirty" => Ok(Box::new(dirty::DirtyBackend::from_settings(settings)?)),
+        "sqlite" => Ok(Box::new(sqlite::SqliteBackend::from_settings(settings)?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
-        // Phase 3 tasks each register a backend here.
         other => Err(UeberError::UnknownBackend(other.to_string())),
     }
 }

@@ -9,7 +9,7 @@ export declare class Database {
   set(key: string, value: any): Promise<void>
   remove(key: string): Promise<void>
   getSub(key: string, path: Array<string>): Promise<any | null>
-  setSub(key: string, path: Array<string>, value: any): Promise<void>
+  setSub(key: string, path: Array<string>, value?: any | undefined | null): Promise<void>
   findKeys(key: string, notKey?: string | undefined | null): Promise<Array<string>>
   metrics(): Metrics
 }

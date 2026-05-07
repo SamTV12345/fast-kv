@@ -21,7 +21,9 @@ pub fn get_sub(value: &Value, path: &[String]) -> Option<Value> {
 }
 
 /// Walk `path` through `root`, creating intermediate objects as needed, and write
-/// `new_value` at the leaf.
+/// `new_value` at the leaf. If `new_value` is `Null` (which is what JS `undefined`
+/// becomes across the napi boundary), the leaf property is deleted instead — matching
+/// the TS `setSub` semantics that `JSON.stringify` skips `undefined` properties.
 ///
 /// An empty `path` replaces the root. If a non-leaf segment lands on a non-object
 /// (e.g. a string or number), returns `UeberError::SetSubOnNonObject` matching
@@ -34,11 +36,11 @@ pub fn set_sub(root: &mut Value, path: &[String], new_value: Value) -> Result<()
     if root.is_null() {
         *root = Value::Object(Map::new());
     }
+    let delete_leaf = new_value.is_null();
     let mut cur = root;
     for (i, segment) in path.iter().enumerate() {
         let is_last = i == path.len() - 1;
         if !cur.is_object() {
-            // Render the offending value as a bare string when possible (matches TS).
             let value_repr = match cur {
                 Value::String(s) => s.clone(),
                 other => other.to_string(),
@@ -50,7 +52,11 @@ pub fn set_sub(root: &mut Value, path: &[String], new_value: Value) -> Result<()
         }
         let map = cur.as_object_mut().expect("guarded by the is_object check above");
         if is_last {
-            map.insert(segment.clone(), new_value);
+            if delete_leaf {
+                map.remove(segment);
+            } else {
+                map.insert(segment.clone(), new_value);
+            }
             return Ok(());
         }
         cur = map
@@ -115,5 +121,19 @@ mod tests {
             err,
             crate::error::UeberError::SetSubOnNonObject { .. }
         ));
+    }
+
+    #[test]
+    fn set_sub_null_deletes_leaf() {
+        let mut v = json!({"a": {"b": 1, "c": 2}});
+        set_sub(&mut v, &["a".into(), "b".into()], Value::Null).unwrap();
+        assert_eq!(v, json!({"a": {"c": 2}}));
+    }
+
+    #[test]
+    fn set_sub_null_at_top_level_deletes_property() {
+        let mut v = json!({"a": 1, "b": 2});
+        set_sub(&mut v, &["a".into()], Value::Null).unwrap();
+        assert_eq!(v, json!({"b": 2}));
     }
 }

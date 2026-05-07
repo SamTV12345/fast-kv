@@ -159,9 +159,18 @@ impl Database {
     }
 
     #[napi(js_name = "setSub")]
-    pub async fn set_sub(&self, key: String, path: Vec<String>, value: Value) -> Result<()> {
+    pub async fn set_sub(
+        &self,
+        key: String,
+        path: Vec<String>,
+        value: Option<Value>,
+    ) -> Result<()> {
+        // JS `undefined` arrives as None; the TS API uses both `null` and
+        // `undefined` to delete the property at the leaf. Collapse to Null
+        // so set_sub can treat both as "delete".
+        let new_value = value.unwrap_or(Value::Null);
         let mut existing = self.get(key.clone()).await?.unwrap_or(Value::Null);
-        set_sub(&mut existing, &path, value)?;
+        set_sub(&mut existing, &path, new_value)?;
         self.set(key, existing).await
     }
 
@@ -209,7 +218,7 @@ mod tests {
         db.set("a".into(), json!(1)).await.unwrap();
         assert_eq!(db.get("a".into()).await.unwrap(), Some(json!(1)));
         // setSub on a fresh key creates an object.
-        db.set_sub("b".into(), vec!["x".into()], json!(2))
+        db.set_sub("b".into(), vec!["x".into()], Some(json!(2)))
             .await
             .unwrap();
         assert_eq!(
