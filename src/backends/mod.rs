@@ -37,6 +37,7 @@ pub struct DefaultWrapperHints {
 
 pub mod dirty;
 pub mod memory;
+pub mod postgres;
 pub mod rusty;
 pub mod sqlite;
 
@@ -46,6 +47,12 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
         "dirty" => Ok(Box::new(dirty::DirtyBackend::from_settings(settings)?)),
         "sqlite" => Ok(Box::new(sqlite::SqliteBackend::from_settings(settings)?)),
         "rustydb" | "rusty" => Ok(Box::new(rusty::RustyBackend::from_settings(settings)?)),
+        "postgres" => Ok(Box::new(postgres::PostgresBackend::from_settings(
+            settings, false,
+        )?)),
+        "postgrespool" => Ok(Box::new(postgres::PostgresBackend::from_settings(
+            settings, true,
+        )?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         other => Err(UeberError::UnknownBackend(other.to_string())),
