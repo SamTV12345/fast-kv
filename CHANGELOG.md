@@ -2,7 +2,7 @@
 
 ## 0.1.0 (unreleased)
 
-Initial release of `ueberdb-rs` — a Rust port of `ueberdb2` exposed via
+Initial release of `@samtv12345/ueberdb-rs` — a Rust port of `ueberdb2` exposed via
 napi-rs.
 
 ### Added

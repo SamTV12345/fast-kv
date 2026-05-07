@@ -1,4 +1,4 @@
-# ueberdb-rs
+# @samtv12345/ueberdb-rs
 
 Drop-in replacement for [`ueberdb2`](https://github.com/ether/ueberDB) — the
 multi-backend key/value abstraction Etherpad uses — re-implemented in safe
@@ -49,7 +49,7 @@ plus per-backend testcontainers specs).
 ## JS API
 
 ```ts
-import { Database } from 'ueberdb-rs'
+import { Database } from '@samtv12345/ueberdb-rs'
 
 const db = new Database('postgres', {
   host: 'localhost',
@@ -88,7 +88,7 @@ cargo test --lib                   # Rust unit tests for the wrapper layer
 
 ## Status
 
-`ueberdb-rs` is a fresh package name; the legacy TypeScript implementation
+`@samtv12345/ueberdb-rs` is a fresh package name; the legacy TypeScript implementation
 keeps publishing under `ueberdb2` until consumers have migrated. The CI
 matrix exercises every backend's conformance spec on each push.
 
