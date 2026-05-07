@@ -1,7 +1,7 @@
 name: CI
 env:
   DEBUG: napi:*
-  APP_NAME: rusty-store-kv
+  APP_NAME: ueberdb-rs
   MACOSX_DEPLOYMENT_TARGET: '10.13'
   CARGO_INCREMENTAL: '1'
 permissions:
@@ -21,7 +21,7 @@ permissions:
       - docs/**
   pull_request: null
   release:
-    types: [ published ]
+    types: [published]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -37,12 +37,14 @@ jobs:
           - host: windows-latest
             build: pnpm build --target x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
-          #- host: windows-latest
-          #  build: pnpm build --target i686-pc-windows-msvc
-          #  target: i686-pc-windows-msvc
+          # GNU targets use the zig cross-linker (-x) rather than
+          # napi-rs's prebuilt cross sysroot. The napi-cross sysroots
+          # don't bundle every C tool that the heavier driver crates
+          # (mongodb, scylla, tiberius, libgit2) want at link time, and
+          # the fat-LTO chain is happier with one tool path.
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            build: pnpm build --target x86_64-unknown-linux-gnu --use-napi-cross
+            build: pnpm build --target x86_64-unknown-linux-gnu -x
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             build: pnpm build --target x86_64-unknown-linux-musl -x
@@ -51,23 +53,17 @@ jobs:
             build: pnpm build --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            build: pnpm build --target aarch64-unknown-linux-gnu --use-napi-cross
+            build: pnpm build --target aarch64-unknown-linux-gnu -x
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             build: pnpm build --target armv7-unknown-linux-gnueabihf --use-napi-cross
-          #- host: ubuntu-latest
-          #  target: aarch64-linux-android
-          #  build: pnpm build --target aarch64-linux-android
-          #- host: ubuntu-latest
-          #  target: armv7-linux-androideabi
-          #  build: pnpm build --target armv7-linux-androideabi
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             build: pnpm build --target aarch64-unknown-linux-musl -x
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: pnpm build --target aarch64-pc-windows-msvc
-    name: stable - ${{ matrix.settings.target }} - node@20
+    name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +72,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - name: Install
         uses: dtolnay/rust-toolchain@stable
@@ -94,40 +90,25 @@ jobs:
             .cargo-cache
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+      # Zig is the C linker for every Linux target that uses `-x`
+      # (musl x86_64/aarch64 + gnu x86_64/aarch64). The armv7-gnueabihf
+      # target still uses napi-cross so it doesn't need zig.
       - uses: goto-bus-stop/setup-zig@v2
-        if: ${{ contains(matrix.settings.target, 'musl') }}
+        if: ${{ contains(matrix.settings.build, '-x') }}
         with:
           version: 0.13.0
-      - name: Setup toolchain
-        run: ${{ matrix.settings.setup }}
-        if: ${{ matrix.settings.setup }}
-        shell: bash
       - name: Install dependencies
         run: pnpm install
-      - name: Setup node x86
-        uses: actions/setup-node@v4
-        if: matrix.settings.target == 'i686-pc-windows-msvc'
-        with:
-          node-version: 20
-          cache: pnpm
-          architecture: x86
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
-        if: matrix.settings.target != 'wasm32-wasip1-threads'
         with:
           name: bindings-${{ matrix.settings.target }}
           path: '*.node'
           if-no-files-found: error
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        if: matrix.settings.target == 'wasm32-wasip1-threads'
-        with:
-          name: bindings-${{ matrix.settings.target }}
-          path: '*.wasm'
-          if-no-files-found: error
+
   build-freebsd:
     runs-on: ubuntu-latest
     name: Build FreeBSD
@@ -154,17 +135,6 @@ jobs:
             corepack prepare
             corepack enable
             source "$HOME/.cargo/env"
-            echo "~~~~ rustc --version ~~~~"
-            rustc --version
-            echo "~~~~ node -v ~~~~"
-            node -v
-            echo "~~~~ pnpm --version ~~~~"
-            pnpm --version
-            pwd
-            ls -lah
-            whoami
-            env
-            freebsd-version
             pnpm install
             pnpm build
             rm -rf node_modules
@@ -175,87 +145,20 @@ jobs:
           name: bindings-freebsd
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
-  test-macOS-windows-binding:
-    name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
+
+  # Functional tests run only on x86_64 Linux. The conformance suite drives
+  # testcontainers (postgres, mysql, mongodb, redis, couch, cassandra, mssql,
+  # elasticsearch, surrealdb, ...), so the runner needs a real Docker socket
+  # — that's not available inside QEMU on the cross-arch runners or on
+  # macOS-latest. The other platforms in the matrix are build-validated.
+  test-linux:
+    name: Test Linux x86_64 - node@${{ matrix.node }}
     needs:
       - build
     strategy:
       fail-fast: false
       matrix:
-        settings:
-          - host: windows-latest
-            target: x86_64-pc-windows-msvc
-            architecture: x64
-          - host: macos-latest
-            target: x86_64-apple-darwin
-            architecture: x64
-          - host: macos-latest
-            target: aarch64-apple-darwin
-            architecture: arm64
         node:
-          - '20'
-          - '22'
-    runs-on: ${{ matrix.settings.host }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: pnpm
-          architecture: ${{ matrix.settings.architecture }}
-      - name: Install dependencies
-        run: pnpm install
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: bindings-${{ matrix.settings.target }}
-          path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Test bindings
-        run: pnpm test
-        env:
-          CI: true
-          CI_SKIP: true
-  test-linux-binding:
-    services:
-      couchdb:
-        image: couchdb:3.5.0
-        env:
-          COUCHDB_USER: 'ueberdb'
-          COUCHDB_PASSWORD: 'ueberdb'
-        ports:
-          - 5984:5984
-        options: >-
-          --health-cmd="curl -f http://localhost:5984/_up" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: 'ueberdb'
-          POSTGRES_PASSWORD: 'ueberdb'
-          POSTGRES_DB: 'ueberdb'
-        ports:
-          - 5432:5432
-    name: Test ${{ matrix.target }} - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - x86_64-unknown-linux-musl
-          - aarch64-unknown-linux-gnu
-          - aarch64-unknown-linux-musl
-          - armv7-unknown-linux-gnueabihf
-        node:
-          - '20'
           - '22'
     runs-on: ubuntu-latest
     steps:
@@ -267,86 +170,26 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
-      - name: Output docker params
-        id: docker
-        run: |
-          node -e "
-            if ('${{ matrix.target }}'.startsWith('aarch64')) {
-              console.log('PLATFORM=linux/arm64')
-            } else if ('${{ matrix.target }}'.startsWith('armv7')) {
-              console.log('PLATFORM=linux/arm/v7')
-            } else {
-              console.log('PLATFORM=linux/amd64')
-            }
-          " >> $GITHUB_OUTPUT
-          node -e "
-            if ('${{ matrix.target }}'.endsWith('-musl')) {
-              console.log('IMAGE=node:${{ matrix.node }}-alpine')
-            } else {
-              console.log('IMAGE=node:${{ matrix.node }}-slim')
-            }
-          " >> $GITHUB_OUTPUT
-          echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-      - name: Install dependencies
-        run: pnpm install --force
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: bindings-${{ matrix.target }}
-          path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-      - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Test bindings
-        uses: addnab/docker-run-action@v3
-        with:
-          image: ${{ steps.docker.outputs.IMAGE }}
-          options: '-v ${{ steps.docker.outputs.PNPM_STORE_PATH }}:${{ steps.docker.outputs.PNPM_STORE_PATH }} -e CI=true -e COUCH_DB_HOST=couchdb -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}'
-          run: npm run test
-        env:
-          CI: true
-          COUCH_DB_HOST: couchdb
-  test-wasi:
-    if: false
-    name: Test WASI target
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
       - name: Install dependencies
         run: pnpm install
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: bindings-wasm32-wasip1-threads
+          name: bindings-x86_64-unknown-linux-gnu
           path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Test bindings
+      - name: List binaries
+        run: ls -lh *.node
+      - name: Test bindings (full conformance suite)
         run: pnpm test
         env:
-          NAPI_RS_FORCE_WASI: 1
+          CI: true
+
   publish:
     name: Publish
     runs-on: ubuntu-latest
     needs:
       - build-freebsd
-      - test-macOS-windows-binding
-      - test-linux-binding
+      - test-linux
     steps:
       - uses: actions/checkout@v4
       - name: setup pnpm
@@ -354,7 +197,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - name: Install dependencies
         run: pnpm install

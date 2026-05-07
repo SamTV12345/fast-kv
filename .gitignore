@@ -201,3 +201,5 @@ Temporary Items
 *.db
 *.dirty
 /__test__/test
+# Local Claude/agent runtime state
+.claude/scheduled_tasks.lock

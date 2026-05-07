@@ -3,26 +3,28 @@ import { GenericContainer, type StartedTestContainer, Wait } from 'testcontainer
 import { databases } from './lib/databases'
 import { test_db } from './lib/test_lib'
 
-describe('couch', () => {
+describe('mysql', () => {
   let container: StartedTestContainer
 
   beforeAll(async () => {
-    container = await new GenericContainer('couchdb:3')
-      .withExposedPorts(5984)
+    container = await new GenericContainer('mysql:8')
+      .withExposedPorts(3306)
       .withEnvironment({
-        COUCHDB_USER: 'ueberdb',
-        COUCHDB_PASSWORD: 'ueberdb',
+        MYSQL_USER: 'ueberdb',
+        MYSQL_PASSWORD: 'ueberdb',
+        MYSQL_DATABASE: 'ueberdb',
+        MYSQL_ROOT_PASSWORD: 'rootpw',
       })
-      .withWaitStrategy(Wait.forHttp('/_up', 5984))
+      .withWaitStrategy(Wait.forLogMessage(/ready for connections.*port: 3306/, 2))
       .withStartupTimeout(120_000)
       .start()
-    databases.couch.host = container.getHost()
-    databases.couch.port = container.getMappedPort(5984)
+    databases.mysql.host = container.getHost()
+    databases.mysql.port = container.getMappedPort(3306)
   }, 180_000)
 
   afterAll(async () => {
     if (container) await container.stop()
   })
 
-  test_db('couch')
+  test_db('mysql')
 })

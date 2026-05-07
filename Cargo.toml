@@ -1,31 +1,60 @@
 [package]
-authors = ["LongYinan <lynweklm@gmail.com>"]
-edition = "2021"
-name = "rusty-store-kv"
+authors = ["SamTV12345", "LongYinan <lynweklm@gmail.com>"]
+edition = "2024"
+name = "ueberdb-rs"
 version = "0.1.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "ueberDB Rust port — multi-backend key-value abstraction with cache, write buffer, and napi binding"
+license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = {version = "3.0.0", features = ["tokio_rt"]}
-napi-derive = "3.0.0"
-redb = "2.1.2"
-regex = "1.10.6"
-rusqlite = "0.37.0"
-libsqlite3-sys = {version = "0.35.0", features = ["bundled"]}
-hashbrown = "0.15.4"
-rev_lines = "0.3.0"
-serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
-couch_rs = { version = "0.12.0", default-features = false, features = ["native-tls-vendored", "derive" ] }
-postgres={version = "0.19.10"}
+thiserror = "2"
+anyhow = "1"
+napi = { version = "3", features = ["tokio_rt", "serde-json"] }
+napi-derive = "3"
+redb = "2"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+async-trait = "0.1"
+dashmap = "6"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util"] }
+moka = { version = "0.12", features = ["future"] }
+tokio-util = "0.7"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "mysql", "json", "macros"] }
+tokio-postgres = { version = "0.7", features = ["with-serde_json-1"] }
+bb8 = "0.9"
+bb8-postgres = "0.9"
+redis = { version = "0.32", features = ["tokio-comp", "connection-manager", "safe_iterators"] }
+mongodb = "3"
+futures = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+urlencoding = "2"
+git2 = { version = "0.20", default-features = false, features = ["vendored-libgit2"] }
+scylla = "0.14"
+tiberius = { version = "0.12", default-features = false, features = ["rustls", "tds73"] }
+bb8-tiberius = "0.16"
+
+[dev-dependencies]
+tempfile = "3"
 
 [build-dependencies]
 napi-build = "2"
 
+# Smallest single-binary release that still fits a 7 GB CI runner.
+# - opt-level "s" trades a slice of speed for substantially smaller code
+#   than the default "3"
+# - thin LTO keeps cross-crate inlining + dead-code elimination but caps
+#   peak linker RAM (fat LTO with all 14 driver crates ran the
+#   x86_64/aarch64 GNU CI jobs out of memory)
+# - codegen-units = 1 maximizes optimization opportunities
+# - panic = "abort" drops the unwinding tables
+# - strip = "symbols" removes the debug-info section
 [profile.release]
-lto = true
+lto = "thin"
+codegen-units = 1
+opt-level = "s"
+panic = "abort"
 strip = "symbols"
