@@ -46,6 +46,7 @@ pub mod postgres;
 pub mod redis;
 pub mod rusty;
 pub mod sqlite;
+pub mod surrealdb;
 
 pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend>> {
     match type_ {
@@ -67,6 +68,7 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
         "elasticsearch" => Ok(Box::new(
             elasticsearch::ElasticsearchBackend::from_settings(settings)?,
         )),
+        "surrealdb" => Ok(Box::new(surrealdb::SurrealBackend::from_settings(settings)?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         other => Err(UeberError::UnknownBackend(other.to_string())),

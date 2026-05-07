@@ -94,4 +94,16 @@ export const databases: Record<string, DatabaseConfig> = {
     // is also moderately heavy.
     speeds: { setMax: 10, getMax: 2, findKeysMax: 30, removeMax: 10 },
   },
+  surrealdb: {
+    host: '127.0.0.1',
+    port: 8000,
+    database: 'test',
+    speeds: {
+      // SurrealDB over HTTP is markedly slower than other backends.
+      setMax: 30,
+      getMax: 30,
+      findKeysMax: 60,
+      removeMax: 30,
+    },
+  },
 }
