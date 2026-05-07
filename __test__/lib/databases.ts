@@ -84,4 +84,14 @@ export const databases: Record<string, DatabaseConfig> = {
     // Per-op HTTP round-trips are inherently slower than other backends.
     speeds: { setMax: 5, getMax: 1, findKeysMax: 30, removeMax: 5 },
   },
+  elasticsearch: {
+    // napi-rs converts snake_case Rust fields to camelCase JS keys, so
+    // Settings.base_index is exposed as `baseIndex` on this object.
+    baseIndex: 'ueberdb_test',
+    host: '127.0.0.1',
+    port: 9200,
+    // ES per-doc indexing with ?refresh=true is slow. Wildcard search
+    // is also moderately heavy.
+    speeds: { setMax: 10, getMax: 2, findKeysMax: 30, removeMax: 10 },
+  },
 }
