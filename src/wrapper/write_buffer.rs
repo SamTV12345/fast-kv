@@ -5,7 +5,7 @@ use dashmap::DashMap;
 use serde_json::Value;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::Notify;
+use tokio::sync::{Mutex as AsyncMutex, Notify};
 use tokio_util::sync::CancellationToken;
 
 #[derive(Clone, Debug)]
@@ -17,6 +17,11 @@ enum BufferedOp {
 pub struct WriteBuffer {
     pub(crate) pending: Arc<DashMap<String, BufferedOp>>,
     notify: Arc<Notify>,
+    // Serializes concurrent flushers so the background ticker and an
+    // explicit `flush_now()` (e.g. from `Database::close`) never race on
+    // the same key. Backends with rev-tracking (CouchDB) blew up when
+    // both ran do_bulk for the same key at the same time.
+    flush_gate: Arc<AsyncMutex<()>>,
     bulk_limit: usize,
     interval_ms: u64,
     enabled: bool,
@@ -27,6 +32,7 @@ impl WriteBuffer {
         Self {
             pending: Arc::new(DashMap::new()),
             notify: Arc::new(Notify::new()),
+            flush_gate: Arc::new(AsyncMutex::new(())),
             bulk_limit,
             interval_ms,
             enabled: interval_ms > 0,
@@ -142,6 +148,7 @@ impl WriteBuffer {
         backend: &Arc<dyn Backend>,
         metrics: &Arc<MetricsCore>,
     ) {
+        let _g = this.flush_gate.lock().await;
         loop {
             let batch = this.snapshot_batch();
             if batch.is_empty() {
@@ -165,6 +172,7 @@ impl WriteBuffer {
         backend: &Arc<dyn Backend>,
         metrics: &Arc<MetricsCore>,
     ) -> Result<()> {
+        let _g = self.flush_gate.lock().await;
         loop {
             let batch = self.snapshot_batch();
             if batch.is_empty() {

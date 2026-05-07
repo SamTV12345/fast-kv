@@ -74,6 +74,7 @@ export const databases: Record<string, DatabaseConfig> = {
     database: 'ueberdb',
     user: 'ueberdb',
     password: 'ueberdb',
-    speeds: { findKeysMax: 30 },
+    // Per-op HTTP round-trips are inherently slower than other backends.
+    speeds: { setMax: 5, getMax: 1, findKeysMax: 30, removeMax: 5 },
   },
 }
