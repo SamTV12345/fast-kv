@@ -1,12 +1,13 @@
 # Changelog
 
-## 6.0.0-next.0 (unreleased)
+## 0.1.0 (unreleased)
 
-Initial Rust-port `next`-train release. Drop-in replacement for ueberDB v5.
+Initial release of `ueberdb-rs` — a Rust port of `ueberdb2` exposed via
+napi-rs.
 
 ### Added
 
-- Rust crate `ueberdb` exposing a single `Database` napi class.
+- Rust crate `ueberdb-rs` exposing a single `Database` napi class.
 - Backends (all 14 from the TS package): memory, dirty, dirty_git, sqlite,
   rusty, postgres (single + pool), mysql/maria, mssql, mongodb, redis,
   couch, cassandra, elasticsearch, surrealdb.

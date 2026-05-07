@@ -1,9 +1,10 @@
-# ueberdb2 (Rust port)
+# ueberdb-rs
 
 Drop-in replacement for [`ueberdb2`](https://github.com/ether/ueberDB) — the
 multi-backend key/value abstraction Etherpad uses — re-implemented in safe
 Rust behind a [napi-rs](https://napi.rs/) binding. Same `Database` JS class,
-same `Settings` shape, same Promise-returning method surface.
+same `Settings` shape, same Promise-returning method surface. Distributed
+as a single fat `.node` per platform with all 14 driver crates linked in.
 
 ## Features
 
@@ -48,7 +49,7 @@ plus per-backend testcontainers specs).
 ## JS API
 
 ```ts
-import { Database } from 'ueberdb2'
+import { Database } from 'ueberdb-rs'
 
 const db = new Database('postgres', {
   host: 'localhost',
@@ -87,10 +88,9 @@ cargo test --lib                   # Rust unit tests for the wrapper layer
 
 ## Status
 
-This is the Rust port branch. The npm name `ueberdb2` is currently still
-served by the TypeScript package; this branch is published under the
-`next` dist-tag until the conformance suite is green on every platform
-in the CI matrix.
+`ueberdb-rs` is a fresh package name; the legacy TypeScript implementation
+keeps publishing under `ueberdb2` until consumers have migrated. The CI
+matrix exercises every backend's conformance spec on each push.
 
 ## License
 

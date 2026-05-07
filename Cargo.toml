@@ -1,7 +1,7 @@
 [package]
 authors = ["SamTV12345", "LongYinan <lynweklm@gmail.com>"]
-edition = "2021"
-name = "ueberdb"
+edition = "2024"
+name = "ueberdb-rs"
 version = "0.1.0"
 description = "ueberDB Rust port — multi-backend key-value abstraction with cache, write buffer, and napi binding"
 license = "Apache-2.0"
@@ -10,32 +10,32 @@ license = "Apache-2.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-thiserror = "1.0"
-anyhow = "1.0"
-napi = { version = "3.0.0", features = ["tokio_rt", "serde-json"] }
-napi-derive = "3.0.0"
-redb = "2.1.2"
-regex = "1.10.6"
-serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
+thiserror = "2"
+anyhow = "1"
+napi = { version = "3", features = ["tokio_rt", "serde-json"] }
+napi-derive = "3"
+redb = "2"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 async-trait = "0.1"
-dashmap = "6.0"
-tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util"] }
+dashmap = "6"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util"] }
 moka = { version = "0.12", features = ["future"] }
 tokio-util = "0.7"
 sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "mysql", "json", "macros"] }
 tokio-postgres = { version = "0.7", features = ["with-serde_json-1"] }
-bb8 = "0.8"
-bb8-postgres = "0.8"
-redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+bb8 = "0.9"
+bb8-postgres = "0.9"
+redis = { version = "0.32", features = ["tokio-comp", "connection-manager", "safe_iterators"] }
 mongodb = "3"
 futures = "0.3"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 urlencoding = "2"
-git2 = { version = "0.19", default-features = false, features = ["vendored-libgit2"] }
+git2 = { version = "0.20", default-features = false, features = ["vendored-libgit2"] }
 scylla = "0.14"
 tiberius = { version = "0.12", default-features = false, features = ["rustls", "tds73"] }
-bb8-tiberius = "0.15"
+bb8-tiberius = "0.16"
 
 [dev-dependencies]
 tempfile = "3"
@@ -43,6 +43,14 @@ tempfile = "3"
 [build-dependencies]
 napi-build = "2"
 
+# Smallest single-binary release. opt-level "s" trades a slice of speed
+# for substantially smaller code than the default "3"; lto + 1
+# codegen unit unlocks cross-crate inlining and dead-code elimination;
+# panic=abort drops the unwinding tables; strip=symbols removes the
+# debug-info section.
 [profile.release]
-lto = true
+lto = "fat"
+codegen-units = 1
+opt-level = "s"
+panic = "abort"
 strip = "symbols"

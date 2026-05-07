@@ -8,6 +8,3 @@ mod wrapper;
 
 pub use db::Database;
 pub use settings::{Settings, WrapperSettings};
-
-#[macro_use]
-extern crate napi_derive;
