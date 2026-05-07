@@ -37,6 +37,7 @@ pub struct DefaultWrapperHints {
 
 pub mod couch;
 pub mod dirty;
+pub mod dirty_git;
 pub mod memory;
 pub mod mongodb;
 pub mod mysql;
@@ -61,6 +62,7 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
         "redis" => Ok(Box::new(redis::RedisBackend::from_settings(settings)?)),
         "mongodb" => Ok(Box::new(mongodb::MongoBackend::from_settings(settings)?)),
         "couch" => Ok(Box::new(couch::CouchBackend::from_settings(settings)?)),
+        "dirty_git" => Ok(Box::new(dirty_git::DirtyGitBackend::from_settings(settings)?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         other => Err(UeberError::UnknownBackend(other.to_string())),

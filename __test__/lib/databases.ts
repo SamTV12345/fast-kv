@@ -31,6 +31,13 @@ export const databases: Record<string, DatabaseConfig> = {
     // ueberDB's 0.5 to absorb napi/tokio overhead on the Rust port.
     speeds: { setMax: 1, getMax: 0.1, findKeysMax: 5 },
   },
+  dirty_git: {
+    // Set per-test in dirty_git.spec.ts so each run gets a fresh repo.
+    filename: '',
+    // Every set/remove triggers a libgit2 commit on top of the dirty
+    // append. setMax stays generous; getMax/findKeysMax mirror dirty.
+    speeds: { setMax: 30, getMax: 0.1, findKeysMax: 5, removeMax: 30 },
+  },
   sqlite: {
     filename: tmp('ueberdb-test.sqlite'),
     speeds: { setMax: 0.6, getMax: 0.5, findKeysMax: 2.5, removeMax: 0.5 },

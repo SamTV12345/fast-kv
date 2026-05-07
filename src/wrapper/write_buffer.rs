@@ -103,22 +103,28 @@ impl WriteBuffer {
         }
     }
 
-    /// Spawn the background flush task. Returns the cancellation handle.
+    /// Spawn the background flush task. Returns the cancellation handle and
+    /// a `JoinHandle` so `close()` can await full shutdown — otherwise the
+    /// final post-cancel drain can outlive `Database::close` and race against
+    /// the next test's backend on shared on-disk state (e.g. dirty_git's
+    /// .git directory).
     pub fn spawn_flush_task(
         self: Arc<Self>,
         backend: Arc<dyn Backend>,
         metrics: Arc<MetricsCore>,
-    ) -> CancellationToken {
+    ) -> (CancellationToken, tokio::task::JoinHandle<()>) {
         let token = CancellationToken::new();
         if !self.enabled {
-            return token;
+            // Spawn a no-op task so the JoinHandle type is consistent.
+            let h = tokio::spawn(async {});
+            return (token, h);
         }
 
         let token_clone = token.clone();
         let interval = Duration::from_millis(self.interval_ms);
         let this = self.clone();
 
-        tokio::spawn(async move {
+        let handle = tokio::spawn(async move {
             let mut ticker = tokio::time::interval(interval);
             ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
 
@@ -140,7 +146,7 @@ impl WriteBuffer {
             }
         });
 
-        token
+        (token, handle)
     }
 
     async fn drain_and_flush(

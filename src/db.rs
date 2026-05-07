@@ -29,6 +29,7 @@ pub struct Database {
     #[allow(dead_code)]
     logger: Logger,
     flush_token: AsyncMutex<Option<CancellationToken>>,
+    flush_join: AsyncMutex<Option<tokio::task::JoinHandle<()>>>,
 }
 
 #[napi]
@@ -50,6 +51,7 @@ impl Database {
             logger: Logger::none(),
             backend: AsyncMutex::new(None),
             flush_token: AsyncMutex::new(None),
+            flush_join: AsyncMutex::new(None),
             wrapper_settings: ws,
         }
     }
@@ -59,12 +61,13 @@ impl Database {
         let mut b = factory(&self.type_, &self.settings).await?;
         b.init().await?;
         let backend: Arc<dyn Backend> = Arc::from(b);
-        let token = self
+        let (token, join) = self
             .write_buffer
             .clone()
             .spawn_flush_task(backend.clone(), self.metrics.clone());
         *self.backend.lock().await = Some(backend);
         *self.flush_token.lock().await = Some(token);
+        *self.flush_join.lock().await = Some(join);
         Ok(())
     }
 
@@ -81,13 +84,16 @@ impl Database {
         let backend = self.backend_arc().await?;
         // Final flush of any buffered writes.
         self.write_buffer.flush_now(&backend, &self.metrics).await?;
-        // Stop the periodic flush task.
+        // Stop the periodic flush task and wait for it to finish — otherwise
+        // its post-cancel drain can outlive close() and race subsequent
+        // backends on shared on-disk state.
         if let Some(token) = self.flush_token.lock().await.take() {
             token.cancel();
         }
-        // Close the backend (now safe — close takes &self).
+        if let Some(join) = self.flush_join.lock().await.take() {
+            let _ = join.await;
+        }
         backend.close().await?;
-        // Drop the backend so future calls return NotInitialized.
         *self.backend.lock().await = None;
         Ok(())
     }
