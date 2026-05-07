@@ -39,6 +39,7 @@ pub mod dirty;
 pub mod memory;
 pub mod mysql;
 pub mod postgres;
+pub mod redis;
 pub mod rusty;
 pub mod sqlite;
 
@@ -55,6 +56,7 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
             settings, true,
         )?)),
         "mysql" | "mariadb" => Ok(Box::new(mysql::MysqlBackend::from_settings(settings)?)),
+        "redis" => Ok(Box::new(redis::RedisBackend::from_settings(settings)?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         other => Err(UeberError::UnknownBackend(other.to_string())),
