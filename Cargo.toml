@@ -23,7 +23,7 @@ dashmap = "6.0"
 tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util"] }
 moka = { version = "0.12", features = ["future"] }
 tokio-util = "0.7"
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "json", "macros"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "mysql", "json", "macros"] }
 tokio-postgres = { version = "0.7", features = ["with-serde_json-1"] }
 bb8 = "0.8"
 bb8-postgres = "0.8"
