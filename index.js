@@ -393,9 +393,4 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
-module.exports.Couch = nativeBinding.Couch
-module.exports.Dirty = nativeBinding.Dirty
-module.exports.KeyValueDB = nativeBinding.KeyValueDB
-module.exports.MemoryDB = nativeBinding.MemoryDB
-module.exports.Postgres = nativeBinding.Postgres
-module.exports.SQLite = nativeBinding.SQLite
+module.exports.Database = nativeBinding.Database
