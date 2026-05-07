@@ -35,6 +35,7 @@ pub struct DefaultWrapperHints {
     pub json: Option<bool>,
 }
 
+pub mod cassandra;
 pub mod couch;
 pub mod dirty;
 pub mod dirty_git;
@@ -69,6 +70,7 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
             elasticsearch::ElasticsearchBackend::from_settings(settings)?,
         )),
         "surrealdb" => Ok(Box::new(surrealdb::SurrealBackend::from_settings(settings)?)),
+        "cassandra" => Ok(Box::new(cassandra::CassandraBackend::from_settings(settings)?)),
         #[cfg(test)]
         "_stub" => Ok(Box::new(test_stub::StubBackend::default())),
         other => Err(UeberError::UnknownBackend(other.to_string())),

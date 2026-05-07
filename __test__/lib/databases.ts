@@ -106,4 +106,23 @@ export const databases: Record<string, DatabaseConfig> = {
       removeMax: 30,
     },
   },
+  cassandra: {
+    host: '127.0.0.1',
+    port: 9042,
+    // ueberDB's clientOptions shape — keyspace is inside this object.
+    // contactPoints is filled in by the spec after the container starts.
+    clientOptions: {
+      keyspace: 'ueberdb',
+    },
+    speeds: {
+      // Single-node Cassandra in a docker container can't reliably take
+      // 1000 ops in a few seconds (it returns "received 0 responses and
+      // 1 failures" under load), so cap the benchmark population.
+      count: 200,
+      setMax: 10,
+      getMax: 5,
+      findKeysMax: 30,
+      removeMax: 10,
+    },
+  },
 }
