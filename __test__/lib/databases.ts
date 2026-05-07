@@ -106,6 +106,20 @@ export const databases: Record<string, DatabaseConfig> = {
       removeMax: 30,
     },
   },
+  mssql: {
+    host: '127.0.0.1',
+    port: 1433,
+    user: 'sa',
+    password: 'Ueberdb!2025',
+    database: 'master',
+    speeds: {
+      // SQL Server in Docker has high per-op latency.
+      setMax: 10,
+      getMax: 5,
+      findKeysMax: 30,
+      removeMax: 10,
+    },
+  },
   cassandra: {
     host: '127.0.0.1',
     port: 9042,

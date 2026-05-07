@@ -42,6 +42,7 @@ pub mod dirty_git;
 pub mod elasticsearch;
 pub mod memory;
 pub mod mongodb;
+pub mod mssql;
 pub mod mysql;
 pub mod postgres;
 pub mod redis;
@@ -62,6 +63,7 @@ pub async fn factory(type_: &str, settings: &Settings) -> Result<Box<dyn Backend
             settings, true,
         )?)),
         "mysql" | "mariadb" => Ok(Box::new(mysql::MysqlBackend::from_settings(settings)?)),
+        "mssql" => Ok(Box::new(mssql::MssqlBackend::from_settings(settings)?)),
         "redis" => Ok(Box::new(redis::RedisBackend::from_settings(settings)?)),
         "mongodb" => Ok(Box::new(mongodb::MongoBackend::from_settings(settings)?)),
         "couch" => Ok(Box::new(couch::CouchBackend::from_settings(settings)?)),
