@@ -37,6 +37,7 @@ pub struct DefaultWrapperHints {
 
 pub mod dirty;
 pub mod memory;
+pub mod sqlite;
 
 pub async fn factory(type_: &str, _settings: &Settings) -> Result<Box<dyn Backend>> {
     match type_ {
