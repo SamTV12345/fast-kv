@@ -1,6 +1,6 @@
 {
   "name": "@samtv12345/ueberdb-rs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Transform every database into an object key value store (Rust port)",
   "main": "index.js",
   "types": "index.d.ts",

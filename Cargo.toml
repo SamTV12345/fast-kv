@@ -2,7 +2,7 @@
 authors = ["SamTV12345", "LongYinan <lynweklm@gmail.com>"]
 edition = "2024"
 name = "ueberdb-rs"
-version = "0.1.0"
+version = "0.1.1"
 description = "ueberDB Rust port — multi-backend key-value abstraction with cache, write buffer, and napi binding"
 license = "Apache-2.0"
 
