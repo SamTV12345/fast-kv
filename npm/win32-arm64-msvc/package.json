@@ -1,12 +1,12 @@
 {
-  "name": "@samtv12345/ueberdb-rs-darwin-x64",
+  "name": "@samtv12345/ueberdb-rs-win32-arm64-msvc",
   "version": "0.1.0",
   "cpu": [
-    "x64"
+    "arm64"
   ],
-  "main": "ueberdb-rs.darwin-x64.node",
+  "main": "ueberdb-rs.win32-arm64-msvc.node",
   "files": [
-    "ueberdb-rs.darwin-x64.node"
+    "ueberdb-rs.win32-arm64-msvc.node"
   ],
   "description": "Transform every database into an object key value store (Rust port)",
   "keywords": [
@@ -27,6 +27,6 @@
     "access": "public"
   },
   "os": [
-    "darwin"
+    "win32"
   ]
 }
